@@ -29,18 +29,20 @@
   - Continue updating with `dt = 0`: rejected because the code path is less explicit
     and does not establish a clean resume timestamp boundary.
 
-## Decision: Build original visual assets with Canvas primitives and CSS
+## Decision: Render a selected licensed 32x32 tile-art subset
 
-- **Decision**: Use code-drawn geometric scenery and character silhouettes plus CSS
-  styling for panels, buttons, and HUD.
-- **Rationale**: The project needs a distinct visual identity without copying
-  protected game characters or bringing binary asset licensing into the assignment.
-  Canvas primitives also precisely follow existing collision geometry.
+- **Decision**: Use user-owned Modern Exteriors tiles for the level and character
+  sprites, and Modern UI Style 2 for visual panel treatment. Retain semantic HTML
+  controls and CSS focus states above the decorative assets.
+- **Rationale**: The selected native 32x32 sheets create a coherent city scene and
+  crisp sprites at the game’s logical scale. Their limited import keeps the project
+  small and preserves the current collision geometry. Modern UI requires credit, so
+  an attribution file and in-game credit are part of the feature.
 - **Alternatives considered**:
-  - Download retro-game sprites or fan art: rejected because authorship and licensing
-    cannot be established and it conflicts with the original-art requirement.
-  - Add an image-processing/generation dependency: rejected because it is unnecessary
-    for a compact original visual system and expands the source/artifact burden.
+  - Import the complete Modern Exteriors pack: rejected because it includes more than
+    13,000 files, most of which are unused by this level.
+  - Keep code-drawn scenery: rejected because it does not meet the requested visual
+    quality target.
 
 ## Decision: Use native accessible controls for session actions
 

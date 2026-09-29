@@ -6,7 +6,7 @@
 
 **Status**: Ready for planning after Feature 002
 
-**Input**: Give Quattro Kong a polished, original game experience with a main menu,
+**Input**: Give Quattro Kong a polished, licensed tile-art game experience with a main menu,
 complete session controls, a clearer map, and an improved visual identity.
 
 ## User Scenarios & Testing *(mandatory)*
@@ -82,7 +82,7 @@ deterministic fixtures; verify the visible outcome and each action.
 ### User Story 4 - Read and enjoy the redesigned level (Priority: P2)
 
 As a player, I can distinguish the route, hazards, goal, collectibles, and player
-from a polished original visual scene, so I can make movement decisions quickly and
+from a polished tile-based visual scene, so I can make movement decisions quickly and
 enjoy the game presentation.
 
 **Why this priority**: The requested redesign must improve playability as well as
@@ -98,8 +98,8 @@ width, then complete the intended route using visible cues.
 2. **Given** the game is shown at a narrow browser width, **When** the player views
    the game and controls, **Then** essential content remains visible without
    overlapping or clipped actions.
-3. **Given** any original asset is displayed, **When** it is reviewed, **Then** it
-   does not copy another game's protected artwork, logos, or character identity.
+3. **Given** a third-party asset is displayed, **When** it is reviewed, **Then** its
+   source pack and required credit are recorded in the project attribution file.
 
 ### Edge Cases
 
@@ -130,9 +130,9 @@ width, then complete the intended route using visible cues.
   and Main Menu actions.
 - **FR-006**: Restart MUST create one clean new session with reset score, lives,
   position, collectible state, and transient UI state.
-- **FR-007**: The redesigned level and interface MUST use an original, cohesive
-  visual system and make the route, player, threats, collectibles, goal, score,
-  lives, and game status visibly distinguishable.
+- **FR-007**: The redesigned level and interface MUST use a cohesive licensed
+  32x32 tile-art system and make the route, player, two distinct enemy types,
+  collectibles, goal, score, lives, and game status visibly distinguishable.
 - **FR-008**: Interactive menu and session controls MUST be usable by pointer and
   keyboard and show visible focus.
 - **FR-009**: The redesign MUST retain existing deterministic movement, collision,
@@ -147,8 +147,8 @@ width, then complete the intended route using visible cues.
   or game over.
 - **Session action**: A player choice that begins, resumes, restarts, or ends a
   game session.
-- **Visual asset**: An original game-specific visual element with a defined purpose
-  in the scene.
+- **Visual asset**: A licensed game-specific visual element with a defined purpose
+  in the scene and a recorded attribution.
 - **Route landmark**: A platform, ladder, hazard area, or goal cue that helps the
   player understand the level.
 
@@ -170,11 +170,13 @@ width, then complete the intended route using visible cues.
 ## Assumptions
 
 - The redesign remains a single-level, single-player browser game with keyboard
-  controls; no account, persistence, audio, or new enemy type is added.
+  controls; no account, persistence, audio, or new enemy behavior is added. The
+  existing patrol and rolling-hazard behaviors receive distinct enemy visuals.
 - Quit Game means ending the current game session and returning to the main menu,
   not attempting to close the browser tab.
 - A restart preserves the player's selected difficulty but resets all progress.
-- Original visual assets are created for this project and are committed as source
-  assets, never as manually edited generated output.
+- The project uses a selected subset of user-owned, licensed 32x32 Modern Exteriors
+  and Modern UI assets. Their packs and required credit are recorded in source;
+  unselected pack files are never imported.
 - This feature depends on Feature 002 so the browser project has a stable boundary
   before its UI structure changes.

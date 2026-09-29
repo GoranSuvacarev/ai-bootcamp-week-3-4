@@ -10,8 +10,8 @@ Turn the existing Canvas prototype into a complete, original browser-game experi
 The frontend will gain a small presentation-state controller that owns menu, play,
 pause, win, and loss views, while the existing deterministic game core remains the
 only authority for movement, damage, scoring, and outcomes. The visual redesign uses
-original Canvas illustration and responsive HTML/CSS controls; it introduces no
-borrowed art, provider changes, or gameplay-rule changes.
+a selected, licensed 32x32 tile-art subset plus responsive HTML/CSS controls; it
+introduces no provider changes or gameplay-rule changes.
 
 ## Technical Context
 
@@ -29,7 +29,7 @@ borrowed art, provider changes, or gameplay-rule changes.
 
 **Performance Goals**: One `requestAnimationFrame` loop per active page; stable, responsive Canvas gameplay at the existing 640 x 900 logical resolution
 
-**Constraints**: Preserve current movement, collision, scoring, difficulty, win, and loss rules; do not run simulation while paused or outside play; keyboard controls must not capture menu-control input; all art must be original and code/source controlled
+**Constraints**: Preserve current movement, collision, scoring, difficulty, win, and loss rules; do not run simulation while paused or outside play; keyboard controls must not capture menu-control input; use only the selected licensed assets with visible attribution
 
 **Scale/Scope**: One player, one level, two existing difficulty options, five presentation states, and a compact set of DOM controls layered around one Canvas
 
@@ -67,6 +67,7 @@ specs/003-game-experience-redesign/
 ```text
 frontend/
 ├── index.html                  # Application shell, accessible controls, visual styling
+├── public/assets/               # Selected 32x32 licensed spritesheets and attribution
 ├── src/
 │   ├── main.ts                 # DOM binding, animation ownership, and session orchestration
 │   ├── game/
@@ -108,10 +109,11 @@ point for DOM events and animation timing.
    in-play controls, pause menu, and distinct result screens. Render only the panel
    matching presentation state, maintain visible keyboard focus, and use semantic
    buttons/radio inputs.
-4. Redraw the level with original Canvas primitives: a night-city background,
-   clearly tiered platforms, high-contrast ladders, recognizable player/enemy/hazard
-   silhouettes, collectible glow, and a goal landmark. Keep each drawn object aligned
-   to the engine geometry so the visual route remains playable.
+4. Render the level from selected Modern Exteriors 32x32 sheets: city background,
+   clearly tiered platforms, high-contrast ladders, a Scout player, zombie patrol,
+   cyclops rolling hazard, collectibles, and a goal landmark. Use Modern UI Style 2
+   only as decorative panel treatment; retain accessible HTML controls. Keep every
+   drawn object aligned to the engine geometry so the visual route remains playable.
 5. Add transition-focused tests, run the existing game/eval tests, typecheck, build,
    and manually exercise start/pause/resume/restart/quit/win/loss at desktop and
    narrow widths. Record evidence at convergence rather than changing unrelated docs.
