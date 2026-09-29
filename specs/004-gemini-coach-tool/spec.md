@@ -53,6 +53,7 @@ As a player, I receive a short stable message when the hint cannot be produced, 
 
 - Invalid or oversized player context is rejected before Gemini or the tool.
 - Only get_game_state is permitted; its input is exactly one detail value: summary or tactical.
+- A direct model answer, zero/multiple tool proposals, or a malformed proposal is rejected; the final-answer turn does not begin.
 - Unknown, private, malformed, or out-of-range tool output is rejected before returning it to Gemini.
 - A final hint with an unknown action or urgency, missing or oversized text, or extra fields is rejected before the UI receives it.
 - Cancellation stops further attempts. Only explicitly transient provider failures may retry within a fixed finite budget.
@@ -64,7 +65,7 @@ As a player, I receive a short stable message when the hint cannot be produced, 
 - **FR-001**: The feature MUST expose exactly one model-callable read-only tool named get_game_state, available only to the AI Hint flow.
 - **FR-002**: The tool MUST accept exactly one detail argument with value summary or tactical. Unknown tools and missing, additional, wrong-type, or unsupported arguments MUST be rejected before execution.
 - **FR-003**: The tool MUST return only a validated minimized local-round snapshot: difficulty, remaining lives, recent threat category, and relevant nearby objects. It MUST NOT return credentials, environment data, source code, files, arbitrary browser data, or mutable game controls.
-- **FR-004**: The application MUST validate player context before the model request, tool output before returning it to Gemini, and final output before exposing it to the UI.
+- **FR-004**: The application MUST require exactly one valid tool proposal, validate player context before the model request, validate tool output before returning it to Gemini, and validate final output before exposing it to the UI.
 - **FR-005**: A successful response MUST be a HintResponse with exactly hint (non-empty actionable text up to 300 characters), suggestedAction (move_left, move_right, jump, climb, wait, or avoid), and urgency (low, medium, or high).
 - **FR-006**: Stable public results MUST cover invalid input, disallowed tool proposals, malformed tool output, malformed final output, cancellation, and unavailable AI, without credentials, raw provider output, stack traces, or private payloads.
 - **FR-007**: Each attempt MUST record a safe event containing request ID, operation, final status, elapsed time, and attempts, but no payloads, provider text, or secrets.
