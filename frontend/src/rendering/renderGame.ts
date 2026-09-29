@@ -1,93 +1,114 @@
 import type { GameState, Rect } from "../game/types";
+import { CHARACTER_IDLE, drawSprite, isLoaded, type GameAssets } from "./assets";
 
-const colors = {
-  background: "#17152a",
-  grid: "#211d3b",
-  platform: "#5b4b8a",
-  ladder: "#f4d35e",
-  player: "#ff6b6b",
-  hazard: "#fb923c",
-  enemy: "#c084fc",
-  collectible: "#facc15",
-  goal: "#6ee7b7",
-  text: "#f7f3e3",
-  muted: "#b8b4d9",
-};
+const colors = { platform: "#293653", edge: "#92afd1", ladder: "#f5bf58", text: "#f8f4e8", glow: "#f7c968" };
 
 const drawRect = (context: CanvasRenderingContext2D, rect: Rect, color: string) => {
   context.fillStyle = color;
   context.fillRect(rect.x, rect.y, rect.width, rect.height);
 };
 
-const drawLadder = (context: CanvasRenderingContext2D, ladder: Rect) => {
-  context.strokeStyle = colors.ladder;
-  context.lineWidth = 5;
+const drawBackdrop = (context: CanvasRenderingContext2D, assets: GameAssets) => {
+  const { canvas } = context;
+  const sky = context.createLinearGradient(0, 0, 0, canvas.height);
+  sky.addColorStop(0, "#10172f");
+  sky.addColorStop(0.54, "#263f6e");
+  sky.addColorStop(1, "#10172f");
+  context.fillStyle = sky;
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = "rgba(247, 201, 104, 0.17)";
   context.beginPath();
-  context.moveTo(ladder.x + 5, ladder.y);
-  context.lineTo(ladder.x + 5, ladder.y + ladder.height);
-  context.moveTo(ladder.x + ladder.width - 5, ladder.y);
-  context.lineTo(ladder.x + ladder.width - 5, ladder.y + ladder.height);
-  for (let y = ladder.y + 8; y < ladder.y + ladder.height; y += 18) {
-    context.moveTo(ladder.x + 4, y);
-    context.lineTo(ladder.x + ladder.width - 4, y);
+  context.arc(506, 116, 72, 0, Math.PI * 2);
+  context.fill();
+
+  context.save();
+  context.globalAlpha = 0.27;
+  if (isLoaded(assets.buildings)) context.drawImage(assets.buildings, 0, 0, 1024, 1640, 0, 104, canvas.width, 714);
+  if (isLoaded(assets.floors)) context.drawImage(assets.floors, 0, 210, 1024, 920, 0, 276, canvas.width, 576);
+  context.restore();
+
+  context.fillStyle = "rgba(8, 15, 30, 0.3)";
+  for (let y = 156; y < canvas.height; y += 160) context.fillRect(0, y, canvas.width, 2);
+};
+
+const drawPlatform = (context: CanvasRenderingContext2D, platform: Rect, assets: GameAssets) => {
+  drawRect(context, { ...platform, x: platform.x + 4, y: platform.y + 6, height: platform.height + 7 }, "rgba(6, 10, 23, 0.58)");
+  drawRect(context, platform, colors.platform);
+  drawRect(context, { ...platform, height: 4 }, colors.edge);
+  if (!isLoaded(assets.city)) return;
+  context.save();
+  context.globalAlpha = 0.72;
+  for (let x = platform.x; x < platform.x + platform.width; x += 64) {
+    context.drawImage(assets.city, 0, 0, 64, 32, x, platform.y - 8, Math.min(64, platform.x + platform.width - x), 20);
+  }
+  context.restore();
+};
+
+const drawLadder = (context: CanvasRenderingContext2D, ladder: Rect, assets: GameAssets) => {
+  context.strokeStyle = "rgba(5, 10, 20, 0.6)";
+  context.lineWidth = 8;
+  context.beginPath();
+  context.moveTo(ladder.x + 5, ladder.y + 4); context.lineTo(ladder.x + 5, ladder.y + ladder.height);
+  context.moveTo(ladder.x + ladder.width - 5, ladder.y + 4); context.lineTo(ladder.x + ladder.width - 5, ladder.y + ladder.height);
+  context.stroke();
+  context.strokeStyle = colors.ladder;
+  context.lineWidth = 4;
+  context.beginPath();
+  context.moveTo(ladder.x + 5, ladder.y + 4); context.lineTo(ladder.x + 5, ladder.y + ladder.height);
+  context.moveTo(ladder.x + ladder.width - 5, ladder.y + 4); context.lineTo(ladder.x + ladder.width - 5, ladder.y + ladder.height);
+  for (let y = ladder.y + 12; y < ladder.y + ladder.height; y += 20) {
+    context.moveTo(ladder.x + 5, y); context.lineTo(ladder.x + ladder.width - 5, y);
   }
   context.stroke();
+  if (isLoaded(assets.terrain)) {
+    context.save(); context.globalAlpha = 0.16;
+    context.drawImage(assets.terrain, 0, 0, 192, 576, ladder.x - 16, ladder.y, 64, ladder.height);
+    context.restore();
+  }
 };
 
-const drawCircle = (context: CanvasRenderingContext2D, rect: Rect, color: string) => {
-  context.fillStyle = color;
+const drawGoal = (context: CanvasRenderingContext2D, goal: Rect, assets: GameAssets) => {
+  drawRect(context, { x: goal.x - 7, y: goal.y - 10, width: goal.width + 14, height: goal.height + 10 }, "#182445");
+  drawRect(context, { x: goal.x + 9, y: goal.y + 2, width: 4, height: goal.height - 2 }, colors.glow);
+  context.fillStyle = colors.glow;
   context.beginPath();
-  context.arc(rect.x + rect.width / 2, rect.y + rect.height / 2, Math.min(rect.width, rect.height) / 2, 0, Math.PI * 2);
-  context.fill();
+  context.moveTo(goal.x + 13, goal.y + 3); context.lineTo(goal.x + goal.width - 2, goal.y + 12); context.lineTo(goal.x + 13, goal.y + 23);
+  context.closePath(); context.fill();
+  if (isLoaded(assets.props)) {
+    context.save(); context.globalAlpha = 0.42;
+    context.drawImage(assets.props, 0, 0, 224, 224, goal.x - 10, goal.y - 46, 80, 80);
+    context.restore();
+  }
+  context.fillStyle = colors.text; context.font = "700 12px system-ui, sans-serif";
+  context.fillText("SAFEHOUSE", goal.x - 4, goal.y - 18);
 };
 
-export function renderGame(context: CanvasRenderingContext2D, state: GameState): void {
+export function renderGame(context: CanvasRenderingContext2D, state: GameState, assets: GameAssets): void {
   const { canvas } = context;
-  context.fillStyle = colors.background;
-  context.fillRect(0, 0, canvas.width, canvas.height);
-
-  context.fillStyle = colors.grid;
-  for (let y = 40; y < canvas.height; y += 180) {
-    context.fillRect(0, y, canvas.width, 4);
-  }
-
-  context.fillStyle = colors.text;
-  context.font = "bold 28px system-ui, sans-serif";
-  context.fillText("ROOFTOP RUN", 32, 50);
-
-  context.font = "bold 16px system-ui, sans-serif";
-  context.fillText(`SCORE ${String(state.score).padStart(4, "0")}`, 32, 78);
-  context.fillText(`LIVES ${String(state.lives).padStart(2, "0")}`, 150, 78);
-
-  for (const platform of state.platforms) {
-    drawRect(context, platform, colors.platform);
-  }
-
-  for (const ladder of state.ladders) {
-    drawLadder(context, ladder);
-  }
-
-  for (const hazard of state.hazards) {
-    if (hazard.active) {
-      drawCircle(context, hazard, colors.hazard);
-    }
-  }
-
-  drawRect(context, state.enemy, colors.enemy);
-
+  context.imageSmoothingEnabled = false;
+  drawBackdrop(context, assets);
+  context.fillStyle = colors.text; context.font = "700 16px system-ui, sans-serif";
+  context.fillText("QUATTRO KONG // NIGHT SHIFT", 28, 38);
+  context.fillStyle = "#b8cae7"; context.font = "600 11px system-ui, sans-serif";
+  context.fillText("CLIMB TO THE SAFEHOUSE", 28, 58);
+  for (const platform of state.platforms) drawPlatform(context, platform, assets);
+  for (const ladder of state.ladders) drawLadder(context, ladder, assets);
   for (const collectible of state.collectibles) {
     if (!collectible.collected) {
-      drawCircle(context, collectible, colors.collectible);
+      context.fillStyle = "rgba(255, 218, 103, 0.25)"; context.beginPath(); context.arc(collectible.x + 9, collectible.y + 9, 14, 0, Math.PI * 2); context.fill();
+      context.fillStyle = "#ffe58a"; context.beginPath(); context.arc(collectible.x + 9, collectible.y + 9, 7, 0, Math.PI * 2); context.fill();
     }
   }
-
-  drawRect(context, state.goal, colors.goal);
-  context.fillStyle = colors.muted;
-  context.font = "bold 14px system-ui, sans-serif";
-  context.fillText("GOAL", state.goal.x + 8, state.goal.y - 10);
-
-  drawRect(context, state.player, colors.player);
-  context.fillStyle = colors.text;
-  context.font = "18px system-ui, sans-serif";
-  context.fillText(`PHASE: ${state.phase.toUpperCase()}`, 32, canvas.height - 36);
+  for (const hazard of state.hazards) if (hazard.active) { drawRect(context, hazard, "#82d6ce"); drawSprite(context, assets.cyclops, CHARACTER_IDLE, hazard); }
+  drawRect(context, state.enemy, "#8ecb69"); drawSprite(context, assets.zombie, CHARACTER_IDLE, state.enemy);
+  drawGoal(context, state.goal, assets);
+  drawRect(context, state.player, "#f4d66b");
+  drawSprite(context, assets.scout, CHARACTER_IDLE, { x: state.player.x, y: state.player.y + state.player.height - 32, width: 32, height: 32 });
+  if (state.player.invulnerableUntil > state.time) {
+    context.strokeStyle = "#ffe58a"; context.lineWidth = 2;
+    context.strokeRect(state.player.x - 2, state.player.y - 2, state.player.width + 4, state.player.height + 4);
+  }
+  drawRect(context, { x: 0, y: canvas.height - 30, width: canvas.width, height: 30 }, "rgba(8, 15, 30, 0.76)");
+  context.fillStyle = "#b8cae7"; context.font = "700 11px system-ui, sans-serif";
+  context.fillText("ZOMBIE PATROL + CYCLOPS DRONE ACTIVE", 24, canvas.height - 11);
 }
