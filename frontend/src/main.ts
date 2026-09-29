@@ -71,9 +71,9 @@ hintButton?.addEventListener("click", async () => {
       }),
       signal: controller.signal,
     });
-    const result = await response.json() as { hint?: string; error?: string };
+    const result = await response.json() as { hint?: string; error?: { message?: string } };
     if (!response.ok || !result.hint) {
-      throw new Error(result.error ?? "Could not get a hint. Try again.");
+      throw new Error(result.error?.message ?? "Could not get a hint. Try again.");
     }
     if (state.lastDamage === damage && hintMessage) hintMessage.textContent = result.hint;
   } catch (error) {

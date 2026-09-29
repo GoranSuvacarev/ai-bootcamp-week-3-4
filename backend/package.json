@@ -1,0 +1,15 @@
+{
+  "name": "@quattro-kong/backend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node src/index.mjs",
+    "build": "node --check src/index.mjs && node --check src/hint.mjs",
+    "typecheck": "node --check src/index.mjs && node --check src/hint.mjs",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@quattro-kong/game-contracts": "file:../packages/game-contracts"
+  }
+}

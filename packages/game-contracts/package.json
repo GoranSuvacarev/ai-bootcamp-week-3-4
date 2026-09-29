@@ -1,0 +1,11 @@
+{
+  "name": "@quattro-kong/game-contracts",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": "./src/hint.mjs",
+  "scripts": {
+    "typecheck": "node --check src/hint.mjs",
+    "test": "node --test tests/hint.test.mjs"
+  }
+}
