@@ -12,8 +12,8 @@ game and evaluation tests remain regression checks.
 
 **Purpose**: Keep the imported visual subset small, traceable, and ready for browser loading.
 
-- [ ] T001 Verify the selected 32x32 tilesheets and character sheets in `frontend/public/assets/` against `frontend/public/assets/ATTRIBUTION.md`.
-- [ ] T002 Record the licensed tile-art direction and the two visual enemy roles in `specs/003-game-experience-redesign/{spec.md,research.md,plan.md}`.
+- [x] T001 Verify the selected 32x32 tilesheets and character sheets in `frontend/public/assets/` against `frontend/public/assets/ATTRIBUTION.md`.
+- [x] T002 Record the licensed tile-art direction and the two visual enemy roles in `specs/003-game-experience-redesign/spec.md`, `research.md`, and `plan.md`.
 
 ---
 
@@ -21,9 +21,9 @@ game and evaluation tests remain regression checks.
 
 **Purpose**: Establish the pure state boundary and one safe browser session lifecycle before UI stories.
 
-- [ ] T003 [P] Add failing state-transition coverage for all five presentation views in `frontend/tests/session.test.ts`.
-- [ ] T004 Create the `menu`, `playing`, `paused`, `won`, and `lost` reducer in `frontend/src/presentation/session.ts` according to `specs/003-game-experience-redesign/contracts/presentation-state.md`.
-- [ ] T005 Refactor animation ownership, active-session creation, input reset, and timestamp reset in `frontend/src/main.ts` so only `playing` invokes `updateGame`.
+- [x] T003 [P] Add failing state-transition coverage for all five presentation views in `frontend/tests/session.test.ts`.
+- [x] T004 Create the `menu`, `playing`, `paused`, `won`, and `lost` reducer in `frontend/src/presentation/session.ts` according to `specs/003-game-experience-redesign/contracts/presentation-state.md`.
+- [x] T005 Refactor animation ownership, active-session creation, input reset, and timestamp reset in `frontend/src/main.ts` so only `playing` invokes `updateGame`.
 
 **Checkpoint**: The simulation can be safely started, frozen, resumed, restarted, and discarded without duplicate loops or elapsed-time jumps.
 
@@ -35,10 +35,10 @@ game and evaluation tests remain regression checks.
 
 **Independent Test**: Open the page, navigate the menu with keyboard and pointer, choose Easy or Normal, and start a fresh session using that choice.
 
-- [ ] T006 [P] [US1] Add accessible main-menu title, objective, controls, difficulty radio group, and Start Game action in `frontend/index.html`.
-- [ ] T007 [P] [US1] Add responsive visual styling and visible focus treatment for the menu controls in `frontend/index.html`.
-- [ ] T008 [US1] Bind menu difficulty and Start Game actions to the presentation controller in `frontend/src/main.ts`.
-- [ ] T009 [US1] Run the focused session test and manually verify the User Story 1 menu flow using `specs/003-game-experience-redesign/quickstart.md`.
+- [x] T006 [P] [US1] Add accessible main-menu title, objective, controls, difficulty radio group, and Start Game action in `frontend/index.html`.
+- [x] T007 [P] [US1] Add responsive visual styling and visible focus treatment for the menu controls in `frontend/index.html`.
+- [x] T008 [US1] Bind menu difficulty and Start Game actions to the presentation controller in `frontend/src/main.ts`.
+- [x] T009 [US1] Run the focused session test and manually verify the User Story 1 menu flow using `specs/003-game-experience-redesign/quickstart.md`.
 
 ---
 
@@ -48,10 +48,10 @@ game and evaluation tests remain regression checks.
 
 **Independent Test**: Start, move, pause, confirm the state is fixed, then exercise Resume, Restart, and Quit Game in separate runs.
 
-- [ ] T010 [P] [US2] Add failing pause, resume, restart, and quit no-op/transition cases to `frontend/tests/session.test.ts`.
-- [ ] T011 [US2] Add in-play Pause and accessible pause-panel Resume, Restart, and Quit Game controls in `frontend/index.html`.
-- [ ] T012 [US2] Connect pause actions, input/timing resets, and hint-request cancellation in `frontend/src/main.ts`.
-- [ ] T013 [US2] Manually verify pause freezes game time and movement, then verify each session action using `specs/003-game-experience-redesign/quickstart.md`.
+- [x] T010 [P] [US2] Add failing pause, resume, restart, and quit no-op/transition cases to `frontend/tests/session.test.ts`.
+- [x] T011 [US2] Add in-play Pause and accessible pause-panel Resume, Restart, and Quit Game controls in `frontend/index.html`.
+- [x] T012 [US2] Connect pause actions, input/timing resets, and hint-request cancellation in `frontend/src/main.ts`.
+- [x] T013 [US2] Manually verify pause freezes game time and movement, then verify each session action using `specs/003-game-experience-redesign/quickstart.md`.
 
 ---
 
@@ -61,10 +61,10 @@ game and evaluation tests remain regression checks.
 
 **Independent Test**: Trigger each deterministic terminal phase and use both Restart and Main Menu actions.
 
-- [ ] T014 [P] [US3] Add `gameWon` and `gameLost` transition cases to `frontend/tests/session.test.ts`.
-- [ ] T015 [US3] Add distinct victory and game-over panels with Restart and Main Menu actions in `frontend/index.html`.
-- [ ] T016 [US3] Derive terminal presentation transitions from `GameState.phase` and bind outcome actions in `frontend/src/main.ts`.
-- [ ] T017 [US3] Verify a restarted terminal session resets score, lives, player position, and collectibles in `frontend/tests/session.test.ts` and the browser smoke flow.
+- [x] T014 [P] [US3] Add `gameWon` and `gameLost` transition cases to `frontend/tests/session.test.ts`.
+- [x] T015 [US3] Add distinct victory and game-over panels with Restart and Main Menu actions in `frontend/index.html`.
+- [x] T016 [US3] Derive terminal presentation transitions from `GameState.phase` and bind outcome actions in `frontend/src/main.ts`.
+- [x] T017 [US3] Verify a restarted terminal session resets score, lives, player position, and collectibles in `frontend/tests/session.test.ts` and the browser smoke flow.
 
 ---
 
@@ -74,20 +74,20 @@ game and evaluation tests remain regression checks.
 
 **Independent Test**: At desktop and narrow widths, identify and use the route, ladders, player, patrol zombie, cyclops hazard, collectibles, and goal without clipped actions.
 
-- [ ] T018 [P] [US4] Define image loading and source-rectangle metadata for the selected sheets in `frontend/src/rendering/assets.ts`.
-- [ ] T019 [US4] Replace prototype geometry in `frontend/src/rendering/renderGame.ts` with tile-sheet city scenery aligned to the existing collision platform and ladder coordinates.
-- [ ] T020 [US4] Render the Scout player, Zombie 1 patrol enemy, and Zombie 2 cyclops rolling hazard from `frontend/public/assets/` in `frontend/src/rendering/renderGame.ts`.
-- [ ] T021 [US4] Add responsive canvas framing, HUD treatment, and visible asset credit in `frontend/index.html`.
-- [ ] T022 [US4] Manually verify route readability and primary controls at desktop and narrow widths using `specs/003-game-experience-redesign/quickstart.md`.
+- [x] T018 [P] [US4] Define image loading and source-rectangle metadata for the selected sheets in `frontend/src/rendering/assets.ts`.
+- [x] T019 [US4] Replace prototype geometry in `frontend/src/rendering/renderGame.ts` with tile-sheet city scenery aligned to the existing collision platform and ladder coordinates.
+- [x] T020 [US4] Render the Scout player, Zombie 1 patrol enemy, and Zombie 2 cyclops rolling hazard from `frontend/public/assets/` in `frontend/src/rendering/renderGame.ts`.
+- [x] T021 [US4] Add responsive canvas framing, HUD treatment, and visible asset credit in `frontend/index.html`.
+- [x] T022 [US4] Manually verify route readability and primary controls at desktop and narrow widths using `specs/003-game-experience-redesign/quickstart.md`.
 
 ---
 
 ## Phase 7: Validation and convergence
 
-- [ ] T023 Run `npm.cmd run test`, `npm.cmd run typecheck`, and `npm.cmd run build` from `package.json`.
-- [ ] T024 Run the combined local development smoke test from `specs/003-game-experience-redesign/quickstart.md` and record actual evidence only.
-- [ ] T025 Review the browser build, `git diff`, and `git status` for secrets, unintended pack files, licensing attribution, and scope expansion.
-- [ ] T026 Mark completed work in `specs/003-game-experience-redesign/tasks.md` and run the Spec Kit analysis/convergence workflow.
+- [x] T023 Run `npm.cmd run test`, `npm.cmd run typecheck`, and `npm.cmd run build` from `package.json`.
+- [x] T024 Run the combined local development smoke test from `specs/003-game-experience-redesign/quickstart.md` and record actual evidence only.
+- [x] T025 Review the browser build, `git diff`, and `git status` for secrets, unintended pack files, licensing attribution, and scope expansion.
+- [x] T026 Mark completed work in `specs/003-game-experience-redesign/tasks.md` and run the Spec Kit analysis/convergence workflow.
 
 ## Dependencies & Execution Order
 
@@ -108,3 +108,7 @@ with the final browser shell. Validation requires all desired stories.
 Complete the pure presentation model first, deliver the main menu and pause loop,
 then add terminal views and the tile-art rendering. Keep all new presentation work
 outside the deterministic game rules and validate each story before proceeding.
+
+## Phase 8: Convergence
+
+- [x] T027 Record the before/after four-evaluation evidence and the combined-runner defect/fix in `specs/003-game-experience-redesign/quickstart.md` per Constitution IV (partial).

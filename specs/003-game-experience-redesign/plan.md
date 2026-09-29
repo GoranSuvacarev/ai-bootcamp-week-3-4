@@ -6,7 +6,7 @@
 
 ## Summary
 
-Turn the existing Canvas prototype into a complete, original browser-game experience.
+Turn the existing Canvas prototype into a complete, licensed tile-art browser-game experience.
 The frontend will gain a small presentation-state controller that owns menu, play,
 pause, win, and loss views, while the existing deterministic game core remains the
 only authority for movement, damage, scoring, and outcomes. The visual redesign uses
@@ -37,7 +37,7 @@ introduces no provider changes or gameplay-rule changes.
 
 | Gate | Result | Evidence |
 |------|--------|----------|
-| Bounded feature scope | Pass | This feature is limited to menus, session controls, responsive presentation, and original visuals in `frontend/`. Accounts, persistence, audio, new enemies, and gameplay changes remain out of scope. |
+| Bounded feature scope | Pass | This feature is limited to menus, session controls, responsive presentation, and selected licensed visuals in `frontend/`. Accounts, persistence, audio, new enemy behavior, and gameplay changes remain out of scope. |
 | Specification before implementation | Pass | `spec.md` defines scenarios, requirements, scope limits, and measurable outcomes. This plan translates them to implementation and test work. |
 | Deterministic core and testable contracts | Pass | The presentation controller is pure and unit-tested. It pauses calls to `updateGame`; existing game rules and their tests remain unchanged except for compatible integration points. No network contract is changed. |
 | Evidence-driven changes | Pending implementation | Preserve and run the existing deterministic eval cases, add transition checks, then document the browser smoke evidence before convergence. |
