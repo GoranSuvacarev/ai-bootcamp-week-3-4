@@ -2,7 +2,10 @@ import { spawn } from "node:child_process";
 
 const npm = process.platform === "win32" ? "npm.cmd" : "npm";
 const children = ["@quattro-kong/backend", "@quattro-kong/frontend"].map((workspace) =>
-  spawn(npm, ["run", "dev", "--workspace", workspace, ...process.argv.slice(2)], { stdio: "inherit" }),
+  spawn(npm, ["run", "dev", "--workspace", workspace, ...process.argv.slice(2)], {
+    stdio: "inherit",
+    shell: process.platform === "win32",
+  }),
 );
 
 const stop = () => children.forEach((child) => child.kill());
