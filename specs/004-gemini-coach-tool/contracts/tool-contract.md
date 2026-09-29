@@ -62,4 +62,3 @@ The backend validates the exact output shape before returning it to Gemini.
 Invalid model proposal: no tool call and stable invalid-tool error.
 Malformed deterministic snapshot: no model continuation and stable malformed-output
 error. Cancellation: stop processing and do not start another retry.
-

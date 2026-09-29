@@ -2,7 +2,7 @@
 
 ## Request
 
-POST /api/hint  
+POST /api/hint
 Content-Type: application/json
 
 ~~~json
@@ -53,4 +53,3 @@ defined safe message and ignores aborted/stale requests.
 
 The browser may abort the request. Restart, return to menu, and new damage abort the
 active request and suppress its eventual response in the UI.
-

@@ -77,4 +77,3 @@ Any validation/provider/cancellation failure
   → mapped safe public error
   → redacted RequestEvent
 ~~~
-

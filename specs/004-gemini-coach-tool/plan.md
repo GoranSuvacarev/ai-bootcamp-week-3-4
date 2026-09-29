@@ -124,4 +124,3 @@ request and public response shapes.
 ## Complexity Tracking
 
 No constitution violations or complexity exceptions are required.
-

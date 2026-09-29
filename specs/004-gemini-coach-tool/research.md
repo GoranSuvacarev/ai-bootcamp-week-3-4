@@ -73,4 +73,3 @@ outcomes are final.
   spend quota, and cannot establish negative call counts.
 - Retrying all failures: rejected because invalid calls and authentication failures
   cannot recover through retry.
-

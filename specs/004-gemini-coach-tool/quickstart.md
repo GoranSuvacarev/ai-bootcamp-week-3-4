@@ -63,4 +63,3 @@ provider response.
 | Malformed final output | no successful hint |
 | Provider timeout/transient failure | finite attempts and safe unavailable result |
 | Cancellation | no retry after abort and no stale UI hint |
-
