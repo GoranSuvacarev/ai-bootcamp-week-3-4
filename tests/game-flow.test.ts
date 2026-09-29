@@ -136,8 +136,11 @@ describe("hazard and enemy collisions", () => {
 
     const damaged = updateGame(state, noInput, 0);
     const repeated = updateGame(damaged, noInput, 0);
+    const laterHit = updateGame(repeated, noInput, 1.1);
 
+    expect(state.lastDamage).toBeNull();
     expect(damaged.lives).toBe(2);
+    expect(damaged.lastDamage).toEqual({ cause: "hazard", x: 64, y: 800, time: 0 });
     expect(damaged.player.x).toBe(64);
     expect(damaged.player.y).toBe(800);
     expect(damaged.player.velocityX).toBe(0);
@@ -145,6 +148,10 @@ describe("hazard and enemy collisions", () => {
     expect(damaged.player.onLadder).toBe(false);
     expect(damaged.player.invulnerableUntil).toBe(1);
     expect(repeated.lives).toBe(2);
+    expect(repeated.lastDamage).toBe(damaged.lastDamage);
+    expect(laterHit.lives).toBe(1);
+    expect(laterHit.lastDamage).toEqual({ cause: "hazard", x: 64, y: 800, time: 1.1 });
+    expect(laterHit.lastDamage).not.toBe(damaged.lastDamage);
   });
 
   it("takes damage from the patrol enemy", () => {
@@ -158,6 +165,7 @@ describe("hazard and enemy collisions", () => {
 
     expect(next.lives).toBe(2);
     expect(next.phase).toBe("playing");
+    expect(next.lastDamage).toEqual({ cause: "enemy", x: 64, y: 800, time: 0 });
   });
 
   it("enters lost when the last life is removed", () => {
@@ -172,6 +180,7 @@ describe("hazard and enemy collisions", () => {
 
     expect(next.lives).toBe(0);
     expect(next.phase).toBe("lost");
+    expect(next.lastDamage).toEqual({ cause: "hazard", x: 64, y: 800, time: 0 });
   });
 
   it("moves the hazard and patrol enemy deterministically within their bounds", () => {
@@ -187,6 +196,52 @@ describe("hazard and enemy collisions", () => {
     expect(next.hazards[0].velocityX).toBe(100);
     expect(next.enemy.x).toBe(state.enemy.patrolMaxX);
     expect(next.enemy.velocityX).toBe(-80);
+  });
+
+  it("moves hazards and enemies more slowly on easy difficulty", () => {
+    const normal = createInitialGameState({ ...DEFAULT_GAME_CONFIG, difficulty: "normal" });
+    normal.hazards[0].x = 100;
+    normal.hazards[0].velocityX = 100;
+    normal.enemy.x = 200;
+    normal.enemy.velocityX = 100;
+
+    const easy = createInitialGameState({ ...DEFAULT_GAME_CONFIG, difficulty: "easy" });
+    easy.hazards[0].x = 100;
+    easy.hazards[0].velocityX = 100;
+    easy.enemy.x = 200;
+    easy.enemy.velocityX = 100;
+
+    const normalNext = updateGame(normal, noInput, 1);
+    const easyNext = updateGame(easy, noInput, 1);
+
+    expect(normalNext.hazards[0].x).toBe(200);
+    expect(easyNext.hazards[0].x).toBe(165);
+    expect(normalNext.enemy.x).toBe(300);
+    expect(easyNext.enemy.x).toBe(265);
+  });
+
+  it("grants a longer damage invulnerability window on easy difficulty", () => {
+    const normal = createInitialGameState({ ...DEFAULT_GAME_CONFIG, difficulty: "normal" });
+    normal.phase = "playing";
+    normal.hazards[0].x = normal.player.x;
+    normal.hazards[0].y = normal.player.y;
+    normal.hazards[0].velocityX = 0;
+
+    const easy = createInitialGameState({ ...DEFAULT_GAME_CONFIG, difficulty: "easy" });
+    easy.phase = "playing";
+    easy.hazards[0].x = easy.player.x;
+    easy.hazards[0].y = easy.player.y;
+    easy.hazards[0].velocityX = 0;
+
+    const normalDamaged = updateGame(normal, noInput, 0);
+    const easyDamaged = updateGame(easy, noInput, 0);
+    const normalAfterWindow = updateGame(normalDamaged, noInput, 1.1);
+    const easyInsideWindow = updateGame(easyDamaged, noInput, 1.1);
+
+    expect(normalDamaged.player.invulnerableUntil).toBe(1);
+    expect(easyDamaged.player.invulnerableUntil).toBe(1.5);
+    expect(normalAfterWindow.lives).toBe(1);
+    expect(easyInsideWindow.lives).toBe(2);
   });
 });
 

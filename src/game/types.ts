@@ -2,6 +2,13 @@ export type GamePhase = "ready" | "playing" | "won" | "lost";
 
 export type Difficulty = "easy" | "normal";
 
+export type DamageEvent = {
+  cause: "hazard" | "enemy";
+  x: number;
+  y: number;
+  time: number;
+};
+
 export type Point = {
   x: number;
   y: number;
@@ -66,6 +73,7 @@ export type GameState = {
   time: number;
   score: number;
   lives: number;
+  lastDamage: DamageEvent | null;
   player: PlayerState;
   platforms: Platform[];
   ladders: Ladder[];

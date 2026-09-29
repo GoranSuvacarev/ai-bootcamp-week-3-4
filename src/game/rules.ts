@@ -11,7 +11,16 @@ import type { GameConfig, GameInput, GameState, PlayerState } from "./types";
 
 const PLAYER_SIZE = { width: 32, height: 40 };
 const CLIMB_SPEED = 160;
-const INVULNERABILITY_DURATION = 1;
+const DIFFICULTY_RULES = {
+  easy: {
+    threatSpeedMultiplier: 0.65,
+    invulnerabilityDuration: 1.5,
+  },
+  normal: {
+    threatSpeedMultiplier: 1,
+    invulnerabilityDuration: 1,
+  },
+} as const;
 const EMPTY_INPUT: GameInput = {
   left: false,
   right: false,
@@ -50,6 +59,7 @@ export function createInitialGameState(config: GameConfig = DEFAULT_GAME_CONFIG)
     time: 0,
     score: 0,
     lives: safeConfig.lives,
+    lastDamage: null,
     player: {
       x: 64,
       y: CORE_PLATFORMS[0].y - PLAYER_SIZE.height,
@@ -81,6 +91,7 @@ export function updateGame(state: GameState, input: GameInput = EMPTY_INPUT, dt:
   const jumpVelocity = state.config.jumpVelocity;
   const maxX = state.config.levelWidth - state.player.width;
   const maxY = state.config.levelHeight - state.player.height;
+  const difficultyRules = DIFFICULTY_RULES[state.config.difficulty];
 
   const player: PlayerState = {
     ...state.player,
@@ -202,7 +213,8 @@ export function updateGame(state: GameState, input: GameInput = EMPTY_INPUT, dt:
     const hazardPlatform = CORE_PLATFORMS[1];
     const minX = hazardPlatform.x;
     const maxHazardX = hazardPlatform.x + hazardPlatform.width - hazard.width;
-    const nextX = hazard.x + hazard.velocityX * safeDt;
+    const effectiveVelocityX = hazard.velocityX * difficultyRules.threatSpeedMultiplier;
+    const nextX = hazard.x + effectiveVelocityX * safeDt;
 
     if (nextX < minX) {
       return { ...hazard, x: minX, velocityX: Math.abs(hazard.velocityX) };
@@ -213,7 +225,8 @@ export function updateGame(state: GameState, input: GameInput = EMPTY_INPUT, dt:
     return { ...hazard, x: nextX };
   });
 
-  const nextEnemyX = state.enemy.x + state.enemy.velocityX * safeDt;
+  const enemyVelocityX = state.enemy.velocityX * difficultyRules.threatSpeedMultiplier;
+  const nextEnemyX = state.enemy.x + enemyVelocityX * safeDt;
   const enemy = nextEnemyX < state.enemy.patrolMinX
     ? { ...state.enemy, x: state.enemy.patrolMinX, velocityX: Math.abs(state.enemy.velocityX) }
     : nextEnemyX > state.enemy.patrolMaxX
@@ -235,12 +248,19 @@ export function updateGame(state: GameState, input: GameInput = EMPTY_INPUT, dt:
 
   if ((hazardHit || enemyHit) && nextTime >= player.invulnerableUntil) {
     const remainingLives = state.lives - 1;
+    const lastDamage = {
+      cause: hazardHit ? "hazard" : "enemy",
+      x: player.x,
+      y: player.y,
+      time: nextTime,
+    } as const;
 
     if (remainingLives <= 0) {
       return {
         ...nextState,
         phase: "lost",
         lives: 0,
+        lastDamage,
         player: { ...player, velocityX: 0, velocityY: 0 },
       };
     }
@@ -248,6 +268,7 @@ export function updateGame(state: GameState, input: GameInput = EMPTY_INPUT, dt:
     return {
       ...nextState,
       lives: remainingLives,
+      lastDamage,
       player: {
         ...player,
         x: 64,
@@ -256,7 +277,7 @@ export function updateGame(state: GameState, input: GameInput = EMPTY_INPUT, dt:
         velocityY: 0,
         onGround: true,
         onLadder: false,
-        invulnerableUntil: nextTime + INVULNERABILITY_DURATION,
+        invulnerableUntil: nextTime + difficultyRules.invulnerabilityDuration,
       },
     };
   }
