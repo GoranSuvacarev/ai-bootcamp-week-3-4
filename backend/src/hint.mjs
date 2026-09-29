@@ -1,4 +1,5 @@
 import { createServer } from "node:http";
+import { API_ERROR_CODES, publicError, validateHintRequest } from "@quattro-kong/game-contracts";
 
 const MAX_BODY_BYTES = 2048;
 const GAME_RULES = [
@@ -9,28 +10,7 @@ const GAME_RULES = [
   "On easy, threats move at 65% of normal speed and damage protection lasts 1.5 seconds instead of 1 second.",
 ].join(" ");
 
-export function validateHintRequest(value) {
-  if (!value || typeof value !== "object") return null;
-  const { difficulty, lives, lastDamage } = value;
-  if (difficulty !== "easy" && difficulty !== "normal") return null;
-  if (!Number.isInteger(lives) || lives < 0 || lives > 3) return null;
-  if (!lastDamage || typeof lastDamage !== "object") return null;
-  if (lastDamage.cause !== "hazard" && lastDamage.cause !== "enemy") return null;
-  if (!Number.isFinite(lastDamage.x) || lastDamage.x < 0 || lastDamage.x > 640) return null;
-  if (!Number.isFinite(lastDamage.y) || lastDamage.y < 0 || lastDamage.y > 900) return null;
-  if (!Number.isFinite(lastDamage.time) || lastDamage.time < 0) return null;
-
-  return {
-    difficulty,
-    lives,
-    lastDamage: {
-      cause: lastDamage.cause,
-      x: lastDamage.x,
-      y: lastDamage.y,
-      time: lastDamage.time,
-    },
-  };
-}
+export { validateHintRequest };
 
 export async function generateHint(snapshot, { apiKey, model = "gpt-5-mini", fetchImpl = fetch }) {
   const response = await fetchImpl("https://api.openai.com/v1/responses", {
@@ -78,16 +58,16 @@ async function readBody(request) {
 export function createHintServer({ apiKey = process.env.OPENAI_API_KEY, model = process.env.OPENAI_MODEL, generate = generateHint } = {}) {
   return createServer(async (request, response) => {
     if (request.url !== "/api/hint") {
-      sendJson(response, 404, { error: "Not found." });
+      sendJson(response, 404, publicError(API_ERROR_CODES.NOT_FOUND, "Not found."));
       return;
     }
     if (request.method !== "POST") {
       response.setHeader("Allow", "POST");
-      sendJson(response, 405, { error: "Method not allowed." });
+      sendJson(response, 405, publicError(API_ERROR_CODES.METHOD_NOT_ALLOWED, "Method not allowed."));
       return;
     }
     if (!request.headers["content-type"]?.startsWith("application/json")) {
-      sendJson(response, 415, { error: "Expected JSON." });
+      sendJson(response, 415, publicError(API_ERROR_CODES.INVALID_REQUEST, "Expected JSON."));
       return;
     }
 
@@ -95,16 +75,16 @@ export function createHintServer({ apiKey = process.env.OPENAI_API_KEY, model = 
     try {
       raw = await readBody(request);
     } catch (error) {
-      sendJson(response, error.message === "too-large" ? 413 : 400, { error: "Invalid request." });
+      sendJson(response, error.message === "too-large" ? 413 : 400, publicError(API_ERROR_CODES.INVALID_REQUEST, "Invalid request."));
       return;
     }
     const snapshot = validateHintRequest(raw);
     if (!snapshot) {
-      sendJson(response, 400, { error: "Invalid game state." });
+      sendJson(response, 400, publicError(API_ERROR_CODES.INVALID_REQUEST, "Invalid game state."));
       return;
     }
     if (!apiKey) {
-      sendJson(response, 503, { error: "AI coach is not configured." });
+      sendJson(response, 503, publicError(API_ERROR_CODES.COACH_UNAVAILABLE, "AI coach is not configured."));
       return;
     }
 
@@ -113,7 +93,7 @@ export function createHintServer({ apiKey = process.env.OPENAI_API_KEY, model = 
       sendJson(response, 200, { hint });
     } catch (error) {
       console.error("AI hint request failed:", error);
-      sendJson(response, 502, { error: "AI coach is unavailable right now." });
+      sendJson(response, 502, publicError(API_ERROR_CODES.COACH_UNAVAILABLE, "AI coach is unavailable right now."));
     }
   });
 }

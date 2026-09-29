@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createHintServer, generateHint, validateHintRequest } from "../server/hint.mjs";
+import { createHintServer, generateHint, validateHintRequest } from "../src/hint.mjs";
 
 const snapshot = {
   difficulty: "normal",
@@ -21,8 +21,8 @@ afterEach(async () => {
 });
 
 describe("AI hint API", () => {
-  it("accepts a compact snapshot and strips extra client fields", () => {
-    expect(validateHintRequest({ ...snapshot, extra: "ignored" })).toEqual(snapshot);
+  it("rejects unknown or invalid client fields", () => {
+    expect(validateHintRequest({ ...snapshot, extra: "ignored" })).toBeNull();
     expect(validateHintRequest({ ...snapshot, lastDamage: { ...snapshot.lastDamage, cause: "fall" } })).toBeNull();
     expect(validateHintRequest({ ...snapshot, lastDamage: { ...snapshot.lastDamage, x: "160" } })).toBeNull();
   });
@@ -64,7 +64,7 @@ describe("AI hint API", () => {
     });
 
     expect(response.status).toBe(503);
-    expect(await response.json()).toEqual({ error: "AI coach is not configured." });
+    expect(await response.json()).toEqual({ error: { code: "COACH_UNAVAILABLE", message: "AI coach is not configured." } });
     expect(generate).not.toHaveBeenCalled();
   });
 
