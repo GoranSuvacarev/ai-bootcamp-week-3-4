@@ -61,10 +61,11 @@ MUST stop implementation at the contract boundary rather than be silently invent
   development, test, typecheck, and build commands.
 - The only live AI provider permitted by this amendment is Google Gemini, accessed
   through a server-side adapter using a server environment variable.
-- The Week 4 Core path MUST use exactly one deterministic, read-only tutor-provided
-  tool or fixture. It MUST enforce its contract, allowed scope, bounded timeout,
-  retry policy, output validation, stable public errors, and safe telemetry with a
-  request identifier.
+- The Week 4 Core path MUST use exactly one deterministic, read-only game-state
+  tool. It MUST enforce its contract, allowed scope, bounded timeout, retry policy,
+  output validation, stable public errors, and safe telemetry with a request
+  identifier. The model may propose the call, but the application validates and
+  executes it.
 - Live-provider behavior is supplementary to the deterministic Core path. Tests and
   evidence MUST use local fakes or fixtures and MUST NOT require provider credits.
 - Prefer local deterministic tests and fixtures over network-dependent checks.
@@ -101,10 +102,11 @@ review by both pair members. A major version removes or reverses a principle, a
 minor version adds or materially expands a principle, and a patch version clarifies
 wording without changing project behavior.
 
-Version 2.0.0 authorizes the Session 004 work as three separately specified
+Version 2.1.0 authorizes the Session 004 work as three separately specified
 features: client-server separation, game-experience redesign, and the bounded
-tool/Gemini coach. Any conflict with the course challenge brief or missing
-tutor-provided tool contract MUST be surfaced for human resolution rather than
-silently overridden.
+tool/Gemini coach. The course challenge requires one read-only tool but does not
+depend on a separate tutor-provided fixture; this project defines that tool's
+bounded contract. Any other conflict with the course challenge brief MUST be
+surfaced for human resolution rather than silently overridden.
 
-**Version**: 2.0.0 | **Ratified**: 2026-09-22 | **Last Amended**: 2026-09-29
+**Version**: 2.1.0 | **Ratified**: 2026-09-22 | **Last Amended**: 2026-09-30

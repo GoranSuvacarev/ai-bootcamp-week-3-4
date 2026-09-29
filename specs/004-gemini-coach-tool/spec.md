@@ -1,169 +1,99 @@
-# Feature Specification: Gemini Coach and Read-Only Tool
+# Feature Specification: Gemini Coach and Read-Only Game State Tool
 
-**Feature Branch**: `004-gemini-coach-tool`
-
-**Created**: 2026-09-29
-
-**Status**: Needs tool-contract clarification before planning
-
-**Input**: Deliver one safe, deterministic read-only tool slice and use its trusted
-result to provide a concise Gemini game hint through the backend.
+**Feature Branch**: 004-gemini-coach-tool
+**Created**: 2026-09-30
+**Status**: Ready for planning
+**Input**: Add one controlled AI Hint. Gemini may propose one defined read-only game-state tool. The application validates and executes it, then validates a structured hint before it reaches the player.
 
 ## User Scenarios & Testing *(mandatory)*
 
-<!--
-The exact tutor-provided tool contract is intentionally unresolved. This feature
-does not authorize inventing its operation name, resource identifier, allowed scope,
-or fixture response; see FR-001 and the clarification question below.
--->
+### User Story 1 - Get a hint from current game facts (Priority: P1)
 
-### User Story 1 - Read an authorized game record (Priority: P1)
+As a player who has lost a life, I can ask for concise advice based on the current round, so I can choose a safer next move without the AI changing the game.
 
-As a player, I can request the one permitted read-only game record and receive its
-contracted public summary, so the game can use verified facts rather than inventing
-them.
-
-**Why this priority**: This deterministic path is the Week 4 Core requirement and
-must work before any live-provider behavior is considered.
-
-**Independent Test**: Use the tutor fixture's success case to request an allowed
-record and verify the request arguments, one call, public response, request ID,
-latency, and attempt count.
+**Independent Test**: With local fakes, submit a valid request; verify one get_game_state proposal with valid arguments, one tool execution, and one validated HintResponse.
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid allowed request, **When** a player asks for the record,
-   **Then** the application makes one read-only call and returns only contracted
-   public fields with a request ID.
-2. **Given** a valid request outside the player's allowed scope, **When** the player
-   requests it, **Then** the application returns FORBIDDEN and makes zero tool calls.
-3. **Given** an invalid request, **When** it is submitted, **Then** the application
-   returns INVALID_INPUT and makes zero tool calls.
+1. **Given** a recent collision, **When** the player asks for a hint, **Then** one concise relevant suggestion is displayed.
+2. **Given** the model requests get_game_state with detail summary or tactical, **When** it is valid, **Then** the application executes it once and returns only allowed facts.
+3. **Given** a valid final response, **When** shown, **Then** it contains short advice, a permitted action, and urgency.
 
 ---
 
-### User Story 2 - Handle controlled failures safely (Priority: P1)
+### User Story 2 - Reject unsafe tool requests (Priority: P1)
 
-As a player, I receive a short, stable message when a request cannot be processed,
-so I understand the outcome without seeing private data or technical details.
+As a player, I can rely on the game not to execute unexpected or invalid AI requests, so the hint feature cannot alter the game or access unrelated data.
 
-**Why this priority**: A tool boundary is only trustworthy when it proves the paths
-where it deliberately does not call, retry, or accept an answer.
-
-**Independent Test**: Run the fixture cases for not found, unavailable/timeout,
-malformed output, and cancellation; verify the public error, call count, and bounded
-attempt count for each.
+**Independent Test**: Make the fake model request an unknown tool or invalid arguments; verify zero tool calls and a stable safe result.
 
 **Acceptance Scenarios**:
 
-1. **Given** a requested record does not exist, **When** it is looked up, **Then**
-   the player receives NOT_FOUND and the application does not retry.
-2. **Given** the fixture reports a transient unavailable condition, **When** it is
-   looked up, **Then** the application retries only within its fixed budget.
-3. **Given** the fixture returns malformed or private output, **When** it is
-   validated, **Then** the player receives MALFORMED_OUTPUT and no false success.
-4. **Given** the player cancels a request before or during the call, **When** the
-   cancellation is observed, **Then** the player receives CANCELLED and no new retry
-   begins.
+1. **Given** an unsupported tool name, **When** it is proposed, **Then** no tool runs and a safe failure is returned.
+2. **Given** get_game_state has missing, additional, wrong-type, or unsupported arguments, **When** proposed, **Then** no tool runs and a safe failure is returned.
+3. **Given** valid arguments, **When** the tool runs, **Then** it only reads a bounded game snapshot and cannot change state, configuration, files, or services.
 
 ---
 
-### User Story 3 - Receive a Gemini game hint (Priority: P2)
+### User Story 3 - Continue safely when AI is unavailable (Priority: P2)
 
-As a player who has lost a life, I can ask for one concise, actionable hint based
-only on trusted game facts, so I can improve my next attempt without exposing a
-credential or raw provider response.
+As a player, I receive a short stable message when the hint cannot be produced, so I can continue or restart without seeing provider details.
 
-**Why this priority**: The selected Gemini hint is the requested AI feature, but it
-must remain secondary to the deterministic tool boundary.
-
-**Independent Test**: Use a local Gemini adapter fake with a successful trusted
-record and verify one concise public hint; separately verify unavailable, malformed,
-and cancelled provider outcomes.
+**Independent Test**: Fake timeout, cancellation, malformed tool output, and malformed final output; verify safe results, bounded attempts, and no stale hint after a new collision or restart.
 
 **Acceptance Scenarios**:
 
-1. **Given** the player has a recorded collision and an authorized trusted record,
-   **When** they request a hint, **Then** they receive one short actionable hint.
-2. **Given** Gemini is unconfigured or unavailable, **When** the player requests a
-   hint, **Then** they receive a stable unavailable message and can keep playing.
-3. **Given** Gemini returns an unacceptable response, **When** it is validated,
-   **Then** the player receives a safe failure rather than provider text.
+1. **Given** the provider is unconfigured, unavailable, or times out, **When** a hint is requested, **Then** the defined unavailable message is shown and gameplay remains usable.
+2. **Given** tool output or final output is invalid, **When** received, **Then** it is never shown as a successful hint.
+3. **Given** a restart, menu return, or newer hit, **When** an earlier request completes, **Then** its advice is not shown for the new state.
 
 ---
 
 ### Edge Cases
 
-- Empty, oversized, wrong-type, or unsupported requests are rejected before a tool
-  call.
-- A valid request for a disallowed record returns FORBIDDEN without revealing
-  whether that record exists.
-- Timeout, cancellation, malformed output, and not-found outcomes have distinct
-  stable public errors and never expose a raw payload, stack trace, or credential.
-- Only explicitly designated transient errors may retry; the initial call counts
-  toward a finite attempt budget.
-- A new collision or restarted game cancels an in-flight hint and prevents stale
-  advice from being shown for the new state.
+- Invalid or oversized player context is rejected before Gemini or the tool.
+- Only get_game_state is permitted; its input is exactly one detail value: summary or tactical.
+- Unknown, private, malformed, or out-of-range tool output is rejected before returning it to Gemini.
+- A final hint with an unknown action or urgency, missing or oversized text, or extra fields is rejected before the UI receives it.
+- Cancellation stops further attempts. Only explicitly transient provider failures may retry within a fixed finite budget.
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: The feature MUST implement exactly one tutor-provided deterministic,
-  read-only tool contract. [NEEDS CLARIFICATION: provide the operation name, input
-  and output schema, allowed scope, fixture path, and controlled failure cases.]
-- **FR-002**: The server MUST validate every tool request and authorize its scope
-  before the tool call; invalid and forbidden requests MUST make zero calls.
-- **FR-003**: The server MUST validate tool output and expose only contracted public
-  fields in stable success and error responses.
-- **FR-004**: Each request MUST have a request ID, operation, status, latency, and
-  attempt count recorded without private payloads, provider responses, or secrets.
-- **FR-005**: The tool adapter MUST enforce a deadline, support cancellation, and
-  retry only explicitly transient failures within a finite total-attempt budget.
-- **FR-006**: The server MUST use Gemini only after the deterministic Core boundary
-  supplies trusted facts; the browser MUST never receive a Gemini credential or raw
-  provider response.
-- **FR-007**: A hint MUST be concise, actionable, relevant to the current game
-  state, and safe to replace with a stable unavailable message.
-- **FR-008**: Tests MUST prove exact tool arguments, call count, public mapping,
-  request ID, telemetry minimum, and all required negative paths using local fakes.
-- **FR-009**: The feature MUST not add a second tool, any write operation, provider
-  fallback, autonomous loop, account system, or live-provider test requirement.
+- **FR-001**: The feature MUST expose exactly one model-callable read-only tool named get_game_state, available only to the AI Hint flow.
+- **FR-002**: The tool MUST accept exactly one detail argument with value summary or tactical. Unknown tools and missing, additional, wrong-type, or unsupported arguments MUST be rejected before execution.
+- **FR-003**: The tool MUST return only a validated minimized local-round snapshot: difficulty, remaining lives, recent threat category, and relevant nearby objects. It MUST NOT return credentials, environment data, source code, files, arbitrary browser data, or mutable game controls.
+- **FR-004**: The application MUST validate player context before the model request, tool output before returning it to Gemini, and final output before exposing it to the UI.
+- **FR-005**: A successful response MUST be a HintResponse with exactly hint (non-empty actionable text up to 300 characters), suggestedAction (move_left, move_right, jump, climb, wait, or avoid), and urgency (low, medium, or high).
+- **FR-006**: Stable public results MUST cover invalid input, disallowed tool proposals, malformed tool output, malformed final output, cancellation, and unavailable AI, without credentials, raw provider output, stack traces, or private payloads.
+- **FR-007**: Each attempt MUST record a safe event containing request ID, operation, final status, elapsed time, and attempts, but no payloads, provider text, or secrets.
+- **FR-008**: The flow MUST have a finite deadline, cancellation, and retries only for explicitly transient provider failures within a fixed attempt budget. Invalid input, disallowed proposals, malformed data, cancellation, and configuration failure MUST not retry.
+- **FR-009**: Gemini credentials remain server-side. The browser receives only validated public results and never authorizes tool calls.
+- **FR-010**: Local fake model and tool tests MUST prove success, exact call arguments and counts, invalid arguments, unsupported tool, malformed tool output, malformed final output, timeout/provider failure, and cancellation. A live-provider smoke test is optional.
+- **FR-011**: The feature MUST NOT add a second tool, write operation, autonomous loop, account, persistence, deployment, provider fallback, or provider-credit requirement.
 
 ### Key Entities *(include if feature involves data)*
 
-- **Tool request**: A strictly validated request for the one permitted public record.
-- **Trusted record**: The validated public result from the deterministic tool.
-- **Public result**: A stable success or error envelope visible to the browser.
-- **Request event**: A safe trace containing operation, request ID, status, latency,
-  and attempts but no secret or raw payload.
-- **Hint request**: A request for concise advice using current collision context and
-  a trusted record.
+- **Hint context**: Bounded validated local-round data, used only as the source for the read-only tool.
+- **Tool proposal**: The model's requested get_game_state call pending application validation.
+- **Game-state snapshot**: Validated public facts returned by the sole tool.
+- **HintResponse**: Validated advice containing text, suggested action, and urgency.
+- **Request event**: Redacted request ID, operation, status, duration, and attempts.
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-- **SC-001**: Every required deterministic fixture passes locally without a provider
-  credential, including valid, invalid, forbidden, not-found, transient failure,
-  malformed-output, and cancellation cases.
-- **SC-002**: Invalid and forbidden tests each prove zero tool calls; the valid test
-  proves one call with the expected arguments and one request ID.
-- **SC-003**: Transient-failure tests prove the configured finite attempt budget, and
-  cancellation, not-found, and malformed-output tests prove zero retries.
-- **SC-004**: A player can request a Gemini hint after a loss and see either one
-  concise hint or a stable safe message in under 35 seconds during a smoke test.
-- **SC-005**: A reviewer can inspect a safe event example containing operation,
-  request ID, status, latency, and attempts with no credential or raw payload.
+- **SC-001**: Local tests demonstrate one successful hint flow with one permitted tool call, correct arguments, one validated snapshot, and one valid HintResponse.
+- **SC-002**: Local tests demonstrate that invalid arguments and an unsupported tool each result in zero tool executions.
+- **SC-003**: Local tests demonstrate that malformed tool output, malformed final output, timeout/provider failure, and cancellation never display a successful hint.
+- **SC-004**: During a local smoke test, a player who has lost a life receives a concise hint or defined safe message within 35 seconds and can continue, restart, or quit normally.
+- **SC-005**: A reviewer can inspect a safe event with request ID, operation, status, elapsed time, and attempts, without a secret, raw provider content, or player payload.
 
 ## Assumptions
 
-- The existing recorded collision is an allowed bounded input for a hint request;
-  hidden game state, credentials, and arbitrary browser data are not.
-- Gemini credentials are server environment configuration and may be absent during
-  development; deterministic local fakes remain the required verification route.
-- Feature 004 depends on the completed project separation in Feature 002. The
-  redesigned Feature 003 UI may consume the final public result but does not change
-  the tool boundary.
-- The tutor-provided tool contract is a hard dependency. Until it is supplied, the
-  feature cannot enter planning or implementation.
+- The game is local and has no server-side persistence. The tool reads validated local-round context and returns a minimized snapshot; it does not authorize accounts or retrieve persistent records.
+- Summary is the default detail; tactical is available only when the model requests the exact allowed argument.
+- One configured Google Gemini model is sufficient. Fallback models and providers are out of scope.
+- The existing AI Hint control stays available only after a life loss, and a new hit or session transition cancels stale work.
