@@ -31,6 +31,11 @@ export function createKeyboardControls(target: Window = window) {
       return;
     }
 
+    if (event.target instanceof Element && event.target.closest("input, button, select, textarea, [contenteditable]")) {
+      input = { ...input, [action]: false };
+      return;
+    }
+
     input = { ...input, [action]: pressed };
     event.preventDefault();
   };
@@ -43,6 +48,7 @@ export function createKeyboardControls(target: Window = window) {
 
   return {
     getInput: (): GameInput => ({ ...input }),
+    reset: () => { input = emptyInput(); },
     dispose: () => {
       target.removeEventListener("keydown", handleKeyDown);
       target.removeEventListener("keyup", handleKeyUp);

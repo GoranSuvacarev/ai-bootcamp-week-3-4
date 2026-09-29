@@ -14,6 +14,7 @@ submission.
 - baseline and four repeatable eval cases;
 - one hypothesis-driven controlled change;
 - evidence and AI usage documentation.
+- an optional AI coach that gives a hint after a lost life.
 
 ## Session 003 validation
 
@@ -24,8 +25,23 @@ submission.
 - requirements quality checklist — 20/20 items checked.
 - handoff package — `docs/SESSION_003_HANDOFF.md`.
 
-Session 004 features such as AI Hint, tool calling, live providers, and API
-integration are intentionally not part of this project yet.
+## AI coach (local development)
+
+Set `OPENAI_API_KEY` in the server's environment, then run `npm.cmd run dev`.
+On PowerShell, for example:
+
+```powershell
+$env:OPENAI_API_KEY = "<your API key>"
+npm.cmd run dev
+```
+
+The command starts both Vite and the local hint API. The **Get hint** button
+becomes available after losing a life. Each click sends the last hit and the
+selected difficulty to the API; the server asks the model for one short hint.
+The default model is `gpt-5-mini`; set `OPENAI_MODEL` on the server to override it.
+Without a key, the game still runs and the hint panel reports that the coach
+is not configured. The key must not be placed in a `VITE_` variable or browser
+code. For a deployed build, route `/api/hint` to the Node API (`npm.cmd run api`).
 
 ## Spec Kit workflow
 
@@ -47,6 +63,5 @@ The authoritative project rules are in `.specify/memory/constitution.md`.
 
 ## Handoff status
 
-Session 003 is frozen for review. Git commits, branches, resets, and automatic
-Git actions have not been performed. Session 004 features remain excluded until
-the handoff is accepted and the tutor-provided Week 4 tool contract is available.
+The Session 003 handoff remains a historical record. The AI coach is a later
+working-tree addition; it has not been added to the Session 003 evidence.
