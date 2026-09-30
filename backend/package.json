@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "node src/index.mjs",
-    "build": "node --check src/index.mjs && node --check src/hint.mjs",
-    "typecheck": "node --check src/index.mjs && node --check src/hint.mjs",
+    "build": "node --check src/index.mjs && node --check src/hint.mjs && node --check src/coach/gemini-adapter.mjs && node --check src/coach/game-state-tool.mjs && node --check src/coach/hint-flow.mjs && node --check src/coach/telemetry.mjs && node --check src/coach/validation.mjs",
+    "typecheck": "node --check src/index.mjs && node --check src/hint.mjs && node --check src/coach/gemini-adapter.mjs && node --check src/coach/game-state-tool.mjs && node --check src/coach/hint-flow.mjs && node --check src/coach/telemetry.mjs && node --check src/coach/validation.mjs",
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
+    "@google/genai": "^2.24.0",
     "@quattro-kong/game-contracts": "file:../packages/game-contracts"
   }
 }

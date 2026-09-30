@@ -1,86 +1,72 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createHintServer, generateHint, validateHintRequest } from "../src/hint.mjs";
+import { createHintServer } from "../src/hint.mjs";
 
-const snapshot = {
+const context = {
   difficulty: "normal",
   lives: 2,
   lastDamage: { cause: "hazard", x: 160, y: 640, time: 4.5 },
 };
+const proposal = { id: "call-1", name: "get_game_state", args: { detail: "summary" } };
+const hint = {
+  hint: "Wait for the rolling hazard to pass, then climb the right ladder.",
+  suggestedAction: "wait",
+  urgency: "medium",
+};
 
 const servers = [];
-
 async function startServer(options) {
   const server = createHintServer(options);
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
   servers.push(server);
-  return `http://127.0.0.1:${server.address().port}`;
+  return "http://127.0.0.1:" + server.address().port;
 }
-
 afterEach(async () => {
   await Promise.all(servers.splice(0).map((server) => new Promise((resolve) => server.close(resolve))));
 });
 
 describe("AI hint API", () => {
-  it("rejects unknown or invalid client fields", () => {
-    expect(validateHintRequest({ ...snapshot, extra: "ignored" })).toBeNull();
-    expect(validateHintRequest({ ...snapshot, lastDamage: { ...snapshot.lastDamage, cause: "fall" } })).toBeNull();
-    expect(validateHintRequest({ ...snapshot, lastDamage: { ...snapshot.lastDamage, x: "160" } })).toBeNull();
-  });
-
-  it("returns one generated hint for a valid request", async () => {
-    const generate = vi.fn().mockResolvedValue("Wait for the hazard to pass before crossing.");
-    const base = await startServer({ apiKey: "test-key", generate });
-    const response = await fetch(`${base}/api/hint`, {
+  it("returns a validated structured hint through the controlled flow", async () => {
+    const coach = { propose: vi.fn().mockResolvedValue([proposal]), finalize: vi.fn().mockResolvedValue(hint) };
+    const events = [];
+    const base = await startServer({ apiKey: "test-key", coach, eventSink: (event) => events.push(event) });
+    const response = await fetch(base + "/api/hint", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(snapshot),
+      body: JSON.stringify(context),
     });
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ hint: "Wait for the hazard to pass before crossing." });
-    expect(generate).toHaveBeenCalledExactlyOnceWith(snapshot, { apiKey: "test-key", model: undefined });
+    expect(await response.json()).toEqual(hint);
+    expect(coach.propose).toHaveBeenCalledOnce();
+    expect(events[0]).toMatchObject({ operation: "ai_hint", status: "success" });
+    expect(JSON.stringify(events[0])).not.toContain("test-key");
   });
 
-  it("rejects invalid game data without calling the model", async () => {
-    const generate = vi.fn();
-    const base = await startServer({ apiKey: "test-key", generate });
-    const response = await fetch(`${base}/api/hint`, {
+  it("rejects invalid browser data before the model or tool is called", async () => {
+    const coach = { propose: vi.fn(), finalize: vi.fn() };
+    const base = await startServer({ apiKey: "test-key", coach });
+    const response = await fetch(base + "/api/hint", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...snapshot, difficulty: "hard" }),
+      body: JSON.stringify({ ...context, difficulty: "hard" }),
     });
 
     expect(response.status).toBe(400);
-    expect(generate).not.toHaveBeenCalled();
+    expect(await response.json()).toEqual({ error: { code: "INVALID_REQUEST", message: "Invalid game state." } });
+    expect(coach.propose).not.toHaveBeenCalled();
   });
 
-  it("reports a missing server-side key without calling the model", async () => {
-    const generate = vi.fn();
-    const base = await startServer({ apiKey: "", generate });
-    const response = await fetch(`${base}/api/hint`, {
+  it("reports missing Gemini configuration without calling the provider", async () => {
+    const coach = { propose: vi.fn(), finalize: vi.fn() };
+    const base = await startServer({ apiKey: "", coach });
+    const response = await fetch(base + "/api/hint", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(snapshot),
+      body: JSON.stringify(context),
     });
 
     expect(response.status).toBe(503);
     expect(await response.json()).toEqual({ error: { code: "COACH_UNAVAILABLE", message: "AI coach is not configured." } });
-    expect(generate).not.toHaveBeenCalled();
-  });
-
-  it("sends the model request with the key only in the server header", async () => {
-    const fetchImpl = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ output: [{ content: [{ type: "output_text", text: "Use the ladder after the hazard passes." }] }] }),
-    });
-
-    const hint = await generateHint(snapshot, { apiKey: "test-key", fetchImpl });
-    const [url, options] = fetchImpl.mock.calls[0];
-
-    expect(hint).toBe("Use the ladder after the hazard passes.");
-    expect(url).toBe("https://api.openai.com/v1/responses");
-    expect(options.headers.Authorization).toBe("Bearer test-key");
-    expect(options.body).not.toContain("test-key");
-    expect(JSON.parse(options.body).input).toBe(JSON.stringify(snapshot));
+    expect(coach.propose).not.toHaveBeenCalled();
   });
 });

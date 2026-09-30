@@ -3,6 +3,7 @@ import { createInitialGameState, updateGame } from "./game/rules";
 import { createKeyboardControls } from "./input/controls";
 import { createGameSession } from "./presentation/gameSession";
 import { createPresentationState, transitionPresentation, type PresentationAction } from "./presentation/session";
+import { canDisplayHint, COACH_UNAVAILABLE_MESSAGE, hintMessageFromResult } from "./coach/hintFeedback";
 import { createGameAssets } from "./rendering/assets";
 import { renderGame } from "./rendering/renderGame";
 
@@ -123,12 +124,13 @@ hintButton.addEventListener("click", async () => {
       body: JSON.stringify({ difficulty: state.config.difficulty, lives: state.lives, lastDamage: damage }),
       signal: controller.signal,
     });
-    const result = await response.json() as { hint?: string; error?: { message?: string } };
-    if (!response.ok || !result.hint) throw new Error(result.error?.message ?? "Could not get a hint. Try again.");
-    if (!controller.signal.aborted && state.lastDamage === damage && presentation.view === "playing") hintMessage.textContent = result.hint;
-  } catch (error) {
-    if (!controller.signal.aborted && state.lastDamage === damage && presentation.view === "playing") {
-      hintMessage.textContent = error instanceof Error ? error.message : "Could not get a hint. Try again.";
+    const result: unknown = await response.json();
+    if (canDisplayHint(controller, hintRequest, damage, state.lastDamage, presentation.view)) {
+      hintMessage.textContent = hintMessageFromResult(result, response.ok);
+    }
+  } catch {
+    if (canDisplayHint(controller, hintRequest, damage, state.lastDamage, presentation.view)) {
+      hintMessage.textContent = COACH_UNAVAILABLE_MESSAGE;
     }
   } finally {
     if (hintRequest === controller) { hintRequest = null; updateHud(); }
