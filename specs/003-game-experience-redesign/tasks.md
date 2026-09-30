@@ -129,5 +129,5 @@ properly aligned sprites and single-image scenery assets.
   render directional Scout frames, and replace the Safehouse with a collectible beacon.
 - [x] T032 Correct the Scout direction frames, anchor and enlarge the beacon, remove the
   gameplay footer, and stage fast/slow enemies across the three threat levels.
-- [ ] T033 Run automated checks and record browser screenshots for menu, playing, pause,
+- [x] T033 Run automated checks and record browser screenshots for menu, playing, pause,
   and beacon/result states at desktop and narrow widths.
