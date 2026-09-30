@@ -1,5 +1,7 @@
 export type GamePhase = "ready" | "playing" | "won" | "lost";
 
+export type PlayerFacing = "left" | "right" | "up" | "down";
+
 export type Difficulty = "easy" | "normal";
 
 export type DamageEvent = {
@@ -60,6 +62,7 @@ export type GameConfig = {
 };
 
 export type PlayerState = Rect & {
+  facing: PlayerFacing;
   velocityX: number;
   velocityY: number;
   onGround: boolean;

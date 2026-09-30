@@ -77,8 +77,8 @@ const updatePanels = () => {
   outcomePanel.hidden = presentation.view !== "won" && presentation.view !== "lost";
   if (presentation.view === "won") {
     outcomeKicker.textContent = "Route complete";
-    outcomeTitle.textContent = "Safehouse reached";
-    outcomeCopy.textContent = "The rooftop route is clear. Run it again to improve your score.";
+    outcomeTitle.textContent = "Beacon secured";
+    outcomeCopy.textContent = "The emergency signal is recovered. Run the route again to improve your score.";
   } else if (presentation.view === "lost") {
     outcomeKicker.textContent = "Signal lost";
     outcomeTitle.textContent = "Night shift over";

@@ -40,6 +40,17 @@ describe("deterministic game movement", () => {
     expect(next.player.velocityX).toBe(DEFAULT_GAME_CONFIG.playerSpeed);
   });
 
+  it("keeps the last movement direction while idle and faces ladders vertically", () => {
+    const state = createInitialGameState(DEFAULT_GAME_CONFIG);
+    const facingLeft = updateFrom(state, { ...noInput, left: true }, 0);
+    const stillFacingLeft = updateFrom(facingLeft, noInput, 0);
+    const facingUp = updateFrom(stillFacingLeft, { ...noInput, climbUp: true }, 0);
+
+    expect(facingLeft.player.facing).toBe("left");
+    expect(stillFacingLeft.player.facing).toBe("left");
+    expect(facingUp.player.facing).toBe("up");
+  });
+
   it("clamps the player at the left and right boundaries", () => {
     const state = createInitialGameState(DEFAULT_GAME_CONFIG);
     state.player.x = 1;

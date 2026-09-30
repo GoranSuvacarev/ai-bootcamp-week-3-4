@@ -125,5 +125,7 @@ properly aligned sprites and single-image scenery assets.
   and Safehouse using the corrected asset map without visible collision rectangles.
 - [x] T030 Rebuild the main-menu, pause, result, HUD, and action-button styling from one
   coherent Modern UI slice while preserving semantic HTML and focus states.
-- [ ] T031 Run automated checks and record browser screenshots for menu, playing, pause,
-  and Safehouse/result states at desktop and narrow widths.
+- [x] T031 Replace the floating platform cutouts with one coherent high-rise structure,
+  render directional Scout frames, and replace the Safehouse with a collectible beacon.
+- [ ] T032 Run automated checks and record browser screenshots for menu, playing, pause,
+  and beacon/result states at desktop and narrow widths.

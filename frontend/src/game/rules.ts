@@ -64,6 +64,7 @@ export function createInitialGameState(config: GameConfig = DEFAULT_GAME_CONFIG)
       x: 64,
       y: CORE_PLATFORMS[0].y - PLAYER_SIZE.height,
       ...PLAYER_SIZE,
+      facing: "right",
       velocityX: 0,
       velocityY: 0,
       onGround: true,
@@ -75,7 +76,7 @@ export function createInitialGameState(config: GameConfig = DEFAULT_GAME_CONFIG)
     hazards: copyHazards(),
     enemy: copyEnemy(),
     collectibles: copyCollectibles(),
-    goal: { x: 544, y: 96, width: 64, height: 48 },
+    goal: { x: 540, y: 152, width: 40, height: 48 },
   };
 }
 
@@ -95,6 +96,15 @@ export function updateGame(state: GameState, input: GameInput = EMPTY_INPUT, dt:
 
   const player: PlayerState = {
     ...state.player,
+    facing: horizontalDirection < 0
+      ? "left"
+      : horizontalDirection > 0
+        ? "right"
+        : input.climbUp
+          ? "up"
+          : input.climbDown
+            ? "down"
+            : state.player.facing,
     velocityX: horizontalDirection * speed,
   };
 
