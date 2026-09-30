@@ -70,7 +70,7 @@ work began later and is documented separately under
 ## Git and approval status
 
 The project has been uploaded to the private GitHub repository:
-https://github.com/GoranSuvacarev/ai-bootcamp-week-3
+https://github.com/GoranSuvacarev/ai-bootcamp-week-3-4
 
 The title/originality approval is not assumed and must still be supplied by the
 instructor before submission.

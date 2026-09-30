@@ -108,7 +108,7 @@ then rerun successfully.
 ## Repository and handoff
 
 - The project was uploaded to the private GitHub repository:
-  https://github.com/GoranSuvacarev/ai-bootcamp-week-3
+  https://github.com/GoranSuvacarev/ai-bootcamp-week-3-4
 - At the time of the Session 003 handoff, no Session 004 AI Hint, tool calling,
   provider, backend, multiplayer, or stretch mechanics had been added.
 
