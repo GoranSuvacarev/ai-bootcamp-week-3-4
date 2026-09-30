@@ -11,76 +11,71 @@ const drawRect = (context: CanvasRenderingContext2D, rect: Rect, color: string) 
 const drawBackdrop = (context: CanvasRenderingContext2D, assets: GameAssets) => {
   const { canvas } = context;
   const sky = context.createLinearGradient(0, 0, 0, canvas.height);
-  sky.addColorStop(0, "#10172f");
-  sky.addColorStop(0.54, "#263f6e");
-  sky.addColorStop(1, "#10172f");
+  sky.addColorStop(0, "#09142c");
+  sky.addColorStop(0.52, "#17345a");
+  sky.addColorStop(1, "#0b1428");
   context.fillStyle = sky;
   context.fillRect(0, 0, canvas.width, canvas.height);
-  context.fillStyle = "rgba(247, 201, 104, 0.17)";
+
+  context.fillStyle = "rgba(255, 239, 181, 0.84)";
   context.beginPath();
-  context.arc(506, 116, 72, 0, Math.PI * 2);
+  context.arc(520, 104, 45, 0, Math.PI * 2);
   context.fill();
+  context.fillStyle = "#dce8ff";
+  for (const [x, y] of [[74, 92], [138, 128], [218, 78], [316, 114], [406, 68], [584, 82]]) {
+    context.fillRect(x, y, 2, 2);
+  }
 
-  context.save();
-  context.globalAlpha = 0.27;
-  if (isLoaded(assets.buildings)) context.drawImage(assets.buildings, 0, 0, 1024, 1640, 0, 104, canvas.width, 714);
-  if (isLoaded(assets.floors)) context.drawImage(assets.floors, 0, 210, 1024, 920, 0, 276, canvas.width, 576);
-  context.restore();
-
-  context.fillStyle = "rgba(8, 15, 30, 0.3)";
-  for (let y = 156; y < canvas.height; y += 160) context.fillRect(0, y, canvas.width, 2);
-};
-
-const drawPlatform = (context: CanvasRenderingContext2D, platform: Rect, assets: GameAssets) => {
-  drawRect(context, { ...platform, x: platform.x + 4, y: platform.y + 6, height: platform.height + 7 }, "rgba(6, 10, 23, 0.58)");
-  drawRect(context, platform, colors.platform);
-  drawRect(context, { ...platform, height: 4 }, colors.edge);
-  if (!isLoaded(assets.city)) return;
   context.save();
   context.globalAlpha = 0.72;
-  for (let x = platform.x; x < platform.x + platform.width; x += 64) {
-    context.drawImage(assets.city, 0, 0, 64, 32, x, platform.y - 8, Math.min(64, platform.x + platform.width - x), 20);
+  const facades = [assets.backdropCool, assets.backdropWarm];
+  for (let x = -20, index = 0; x < canvas.width; x += 92, index += 1) {
+    const facade = facades[index % facades.length];
+    if (isLoaded(facade)) context.drawImage(facade, x, 438, 96, 384);
   }
+  if (isLoaded(assets.backdropWindows)) {
+    for (let x = 40; x < canvas.width; x += 160) context.drawImage(assets.backdropWindows, x, 366, 160, 64);
+  }
+  if (isLoaded(assets.antenna)) context.drawImage(assets.antenna, 438, 278, 72, 96);
   context.restore();
+
+  context.fillStyle = "rgba(5, 12, 28, 0.42)";
+  context.fillRect(0, 330, canvas.width, 520);
 };
 
-const drawLadder = (context: CanvasRenderingContext2D, ladder: Rect, assets: GameAssets) => {
-  context.strokeStyle = "rgba(5, 10, 20, 0.6)";
-  context.lineWidth = 8;
+const drawPlatform = (context: CanvasRenderingContext2D, platform: Rect, assets: GameAssets, index: number) => {
+  drawRect(context, { ...platform, x: platform.x + 5, y: platform.y + 7, height: platform.height + 9 }, "rgba(2, 7, 18, 0.72)");
+  drawRect(context, platform, "#1c2942");
+  const panel = index % 2 === 0 ? assets.roofSlate : assets.roofTeal;
+  if (!isLoaded(panel)) return;
+  context.save();
   context.beginPath();
-  context.moveTo(ladder.x + 5, ladder.y + 4); context.lineTo(ladder.x + 5, ladder.y + ladder.height);
-  context.moveTo(ladder.x + ladder.width - 5, ladder.y + 4); context.lineTo(ladder.x + ladder.width - 5, ladder.y + ladder.height);
-  context.stroke();
-  context.strokeStyle = colors.ladder;
-  context.lineWidth = 4;
-  context.beginPath();
-  context.moveTo(ladder.x + 5, ladder.y + 4); context.lineTo(ladder.x + 5, ladder.y + ladder.height);
-  context.moveTo(ladder.x + ladder.width - 5, ladder.y + 4); context.lineTo(ladder.x + ladder.width - 5, ladder.y + ladder.height);
-  for (let y = ladder.y + 12; y < ladder.y + ladder.height; y += 20) {
-    context.moveTo(ladder.x + 5, y); context.lineTo(ladder.x + ladder.width - 5, y);
+  context.rect(platform.x, platform.y - 8, platform.width, 34);
+  context.clip();
+  for (let x = platform.x; x < platform.x + platform.width; x += 112) {
+    context.drawImage(panel, x, platform.y - 12, 112, 96);
   }
-  context.stroke();
-  if (isLoaded(assets.terrain)) {
-    context.save(); context.globalAlpha = 0.16;
-    context.drawImage(assets.terrain, 0, 0, 192, 576, ladder.x - 16, ladder.y, 64, ladder.height);
-    context.restore();
+  context.restore();
+  drawRect(context, { ...platform, y: platform.y - 2, height: 4 }, colors.edge);
+};
+
+const drawLadder = (context: CanvasRenderingContext2D, ladder: Rect) => {
+  drawRect(context, { x: ladder.x + 3, y: ladder.y, width: 7, height: ladder.height }, "#533f34");
+  drawRect(context, { x: ladder.x + ladder.width - 10, y: ladder.y, width: 7, height: ladder.height }, "#533f34");
+  drawRect(context, { x: ladder.x + 5, y: ladder.y, width: 4, height: ladder.height }, colors.ladder);
+  drawRect(context, { x: ladder.x + ladder.width - 9, y: ladder.y, width: 4, height: ladder.height }, colors.ladder);
+  for (let y = ladder.y + 12; y < ladder.y + ladder.height; y += 20) {
+    drawRect(context, { x: ladder.x + 7, y, width: ladder.width - 14, height: 4 }, colors.ladder);
   }
 };
 
 const drawGoal = (context: CanvasRenderingContext2D, goal: Rect, assets: GameAssets) => {
-  drawRect(context, { x: goal.x - 7, y: goal.y - 10, width: goal.width + 14, height: goal.height + 10 }, "#182445");
-  drawRect(context, { x: goal.x + 9, y: goal.y + 2, width: 4, height: goal.height - 2 }, colors.glow);
-  context.fillStyle = colors.glow;
-  context.beginPath();
-  context.moveTo(goal.x + 13, goal.y + 3); context.lineTo(goal.x + goal.width - 2, goal.y + 12); context.lineTo(goal.x + 13, goal.y + 23);
-  context.closePath(); context.fill();
-  if (isLoaded(assets.props)) {
-    context.save(); context.globalAlpha = 0.42;
-    context.drawImage(assets.props, 0, 0, 224, 224, goal.x - 10, goal.y - 46, 80, 80);
-    context.restore();
-  }
-  context.fillStyle = colors.text; context.font = "700 12px system-ui, sans-serif";
-  context.fillText("SAFEHOUSE", goal.x - 4, goal.y - 18);
+  if (isLoaded(assets.safehouse)) context.drawImage(assets.safehouse, goal.x - 56, goal.y - 78, 128, 128);
+  if (isLoaded(assets.dangerSign)) context.drawImage(assets.dangerSign, goal.x - 18, goal.y - 42, 24, 24);
+  context.fillStyle = "rgba(7, 13, 28, 0.88)";
+  context.fillRect(goal.x - 48, goal.y - 84, 112, 18);
+  context.fillStyle = colors.text; context.font = "700 11px system-ui, sans-serif";
+  context.fillText("SAFEHOUSE", goal.x - 38, goal.y - 71);
 };
 
 export function renderGame(context: CanvasRenderingContext2D, state: GameState, assets: GameAssets): void {
@@ -91,12 +86,19 @@ export function renderGame(context: CanvasRenderingContext2D, state: GameState, 
   context.fillText("QUATTRO KONG // NIGHT SHIFT", 28, 38);
   context.fillStyle = "#b8cae7"; context.font = "600 11px system-ui, sans-serif";
   context.fillText("CLIMB TO THE SAFEHOUSE", 28, 58);
-  for (const platform of state.platforms) drawPlatform(context, platform, assets);
-  for (const ladder of state.ladders) drawLadder(context, ladder, assets);
+  state.platforms.forEach((platform, index) => drawPlatform(context, platform, assets, index));
+  for (const ladder of state.ladders) drawLadder(context, ladder);
   for (const collectible of state.collectibles) {
     if (!collectible.collected) {
-      context.fillStyle = "rgba(255, 218, 103, 0.25)"; context.beginPath(); context.arc(collectible.x + 9, collectible.y + 9, 14, 0, Math.PI * 2); context.fill();
-      context.fillStyle = "#ffe58a"; context.beginPath(); context.arc(collectible.x + 9, collectible.y + 9, 7, 0, Math.PI * 2); context.fill();
+      drawRect(context, { x: collectible.x - 3, y: collectible.y - 3, width: 24, height: 24 }, "rgba(126, 224, 204, 0.18)");
+      context.fillStyle = "#7de0cc";
+      context.beginPath();
+      context.moveTo(collectible.x + 9, collectible.y);
+      context.lineTo(collectible.x + 18, collectible.y + 9);
+      context.lineTo(collectible.x + 9, collectible.y + 18);
+      context.lineTo(collectible.x, collectible.y + 9);
+      context.closePath(); context.fill();
+      drawRect(context, { x: collectible.x + 7, y: collectible.y + 5, width: 4, height: 8 }, "#e9fffa");
     }
   }
   for (const hazard of state.hazards) {

@@ -121,7 +121,7 @@ properly aligned sprites and single-image scenery assets.
 - [x] T028 Audit the screenshot defects, copy a named scenery subset from the pack's
   `ME_Theme_Sorter_32x32` single-image folders, and record exact Scout, Zombie, and
   Cyclops frame rectangles in `frontend/src/rendering/assets.ts`.
-- [ ] T029 Rebuild the Canvas background, platforms, ladders, characters, collectibles,
+- [x] T029 Rebuild the Canvas background, platforms, ladders, characters, collectibles,
   and Safehouse using the corrected asset map without visible collision rectangles.
 - [ ] T030 Rebuild the main-menu, pause, result, HUD, and action-button styling from one
   coherent Modern UI slice while preserving semantic HTML and focus states.
