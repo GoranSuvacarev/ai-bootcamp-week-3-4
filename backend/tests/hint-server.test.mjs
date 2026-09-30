@@ -69,4 +69,21 @@ describe("AI hint API", () => {
     expect(await response.json()).toEqual({ error: { code: "COACH_UNAVAILABLE", message: "AI coach is not configured." } });
     expect(coach.propose).not.toHaveBeenCalled();
   });
+
+  it("retains only redacted telemetry for completed requests by default", async () => {
+    const coach = { propose: vi.fn().mockResolvedValue([proposal]), finalize: vi.fn().mockResolvedValue(hint) };
+    const server = createHintServer({ apiKey: "test-key", coach });
+    await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+    servers.push(server);
+    const response = await fetch("http://127.0.0.1:" + server.address().port + "/api/hint", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(context),
+    });
+
+    expect(response.status).toBe(200);
+    expect(server.getCoachEvents()).toHaveLength(1);
+    expect(server.getCoachEvents()[0]).toMatchObject({ operation: "ai_hint", status: "success", attempts: 2 });
+    expect(Object.keys(server.getCoachEvents()[0]).sort()).toEqual(["attempts", "latencyMs", "operation", "requestId", "status"]);
+  });
 });

@@ -20,7 +20,8 @@ valid browser context
 
 Assertions prove one tool call, one final-model call, exact tool arguments, a
 validated HintResponse, and a redacted event containing only requestId, operation,
-status, latencyMs, and attempts.
+status, latencyMs, and attempts. The server also retains a bounded in-memory history
+of the same redacted events for local inspection; it stores no payload or provider text.
 
 ## Negative and failure proof
 
@@ -50,7 +51,7 @@ npm.cmd audit --omit=dev --workspace @quattro-kong/backend
 
 Actual results:
 
-- Full test suite: 75 passed: 55 frontend, 16 backend, and 4 shared-contract tests.
+- Full test suite: 76 passed: 55 frontend, 17 backend, and 4 shared-contract tests.
 - Typecheck: passed across frontend, backend, and shared contracts.
 - Production build: passed.
 - Production dependency audit: 0 vulnerabilities.

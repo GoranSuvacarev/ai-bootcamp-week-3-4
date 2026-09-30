@@ -3,6 +3,7 @@ import { API_ERROR_CODES, publicError, validateHintRequest } from "@quattro-kong
 import { createGeminiAdapter } from "./coach/gemini-adapter.mjs";
 import { createGameStateTool } from "./coach/game-state-tool.mjs";
 import { createHintFlow } from "./coach/hint-flow.mjs";
+import { createEventStore } from "./coach/telemetry.mjs";
 
 const MAX_BODY_BYTES = 2048;
 
@@ -36,12 +37,17 @@ export function createHintServer({
   model = process.env.GEMINI_MODEL || "gemini-2.5-flash",
   coach,
   tool = createGameStateTool(),
-  eventSink = () => {},
+  eventSink,
 } = {}) {
+  const eventStore = createEventStore();
+  const recordEvent = (event) => {
+    eventStore.record(event);
+    eventSink?.(event);
+  };
   const resolvedCoach = apiKey ? (coach ?? createGeminiAdapter({ apiKey, model })) : null;
-  const flow = resolvedCoach ? createHintFlow({ model: resolvedCoach, tool, eventSink }) : null;
+  const flow = resolvedCoach ? createHintFlow({ model: resolvedCoach, tool, eventSink: recordEvent }) : null;
 
-  return createServer(async (request, response) => {
+  const server = createServer(async (request, response) => {
     if (request.url !== "/api/hint") {
       sendJson(response, 404, publicError(API_ERROR_CODES.NOT_FOUND, "Not found."));
       return;
@@ -76,4 +82,6 @@ export function createHintServer({
     const result = await flow.run(context, { signal: createRequestSignal(request, response) });
     sendJson(response, result.status, result.body);
   });
+  server.getCoachEvents = () => eventStore.recent();
+  return server;
 }

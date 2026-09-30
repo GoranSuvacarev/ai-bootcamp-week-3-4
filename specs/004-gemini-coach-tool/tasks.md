@@ -169,3 +169,9 @@ Task: T016 [US2] invalid-browser-request tests in backend/tests/hint-server.test
 2. Zero-call rejection proof for unsafe proposals.
 3. Safe errors, retry, cancellation, and stale UI suppression.
 4. Full evidence and review.
+
+---
+
+## Phase 7: Convergence
+
+- [x] T032 Record and expose a bounded in-memory redacted request-event history by default in backend/src/coach/telemetry.mjs and backend/src/hint.mjs, with a local test proving a completed HTTP request is retained per FR-007 (partial).
