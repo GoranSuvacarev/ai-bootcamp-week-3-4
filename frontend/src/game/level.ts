@@ -25,21 +25,42 @@ export const CORE_HAZARDS: RollingHazard[] = [
     y: CORE_PLATFORMS[1].y - 24,
     width: 24,
     height: 24,
-    velocityX: 120,
+    velocityX: 160,
+    active: true,
+  },
+  {
+    id: "hazard-02",
+    x: 400,
+    y: CORE_PLATFORMS[3].y - 24,
+    width: 24,
+    height: 24,
+    velocityX: -160,
     active: true,
   },
 ];
 
-export const CORE_ENEMY: PatrolEnemy = {
-  id: "enemy-01",
-  x: 160,
-  y: CORE_PLATFORMS[3].y - 32,
-  width: 32,
-  height: 32,
-  velocityX: 80,
-  patrolMinX: 64,
-  patrolMaxX: 368,
-};
+export const CORE_ENEMIES: PatrolEnemy[] = [
+  {
+    id: "enemy-01",
+    x: 400,
+    y: CORE_PLATFORMS[2].y - 32,
+    width: 32,
+    height: 32,
+    velocityX: -70,
+    patrolMinX: 64,
+    patrolMaxX: 512,
+  },
+  {
+    id: "enemy-02",
+    x: 160,
+    y: CORE_PLATFORMS[3].y - 32,
+    width: 32,
+    height: 32,
+    velocityX: 70,
+    patrolMinX: 64,
+    patrolMaxX: 512,
+  },
+];
 
 export const CORE_COLLECTIBLES: Collectible[] = [
   { id: "collectible-01", x: 160, y: CORE_PLATFORMS[1].y - 18, width: 18, height: 18, points: 100, collected: false },

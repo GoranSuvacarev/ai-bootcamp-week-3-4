@@ -151,7 +151,7 @@ const drawObjective = (context: CanvasRenderingContext2D, goal: Rect, assets: Ga
   context.fillRect(centerX - pulse, centerY - pulse, pulse * 2, pulse * 2);
 
   if (isLoaded(assets.signalBeacon)) {
-    context.drawImage(assets.signalBeacon, goal.x + 4, goal.y - 16, 32, 64);
+    context.drawImage(assets.signalBeacon, goal.x - 4, goal.y - 10, 48, 96);
   } else {
     drawRect(context, { x: goal.x + 12, y: goal.y + 10, width: 16, height: 38 }, "#ff5d6c");
   }
@@ -164,7 +164,6 @@ const drawObjective = (context: CanvasRenderingContext2D, goal: Rect, assets: Ga
 };
 
 export function renderGame(context: CanvasRenderingContext2D, state: GameState, assets: GameAssets): void {
-  const { canvas } = context;
   context.imageSmoothingEnabled = false;
   drawBackdrop(context, assets);
   drawHighRise(context, state.platforms, assets);
@@ -184,12 +183,14 @@ export function renderGame(context: CanvasRenderingContext2D, state: GameState, 
   for (const hazard of state.hazards) {
     if (hazard.active) drawSprite(context, assets.cyclops, CHARACTER_FRAMES.cyclopsIdle, hazard);
   }
-  drawSprite(context, assets.zombie, CHARACTER_FRAMES.zombieIdle, {
-    x: state.enemy.x,
-    y: state.enemy.y + state.enemy.height - CHARACTER_FRAMES.zombieIdle.height,
-    width: CHARACTER_FRAMES.zombieIdle.width,
-    height: CHARACTER_FRAMES.zombieIdle.height,
-  });
+  for (const enemy of state.enemies) {
+    drawSprite(context, assets.zombie, CHARACTER_FRAMES.zombieIdle, {
+      x: enemy.x,
+      y: enemy.y + enemy.height - CHARACTER_FRAMES.zombieIdle.height,
+      width: CHARACTER_FRAMES.zombieIdle.width,
+      height: CHARACTER_FRAMES.zombieIdle.height,
+    });
+  }
   drawObjective(context, state.goal, assets, state.time);
 
   const scoutFrame = CHARACTER_FRAMES.scout[state.player.facing];
@@ -205,8 +206,4 @@ export function renderGame(context: CanvasRenderingContext2D, state: GameState, 
     context.strokeRect(state.player.x - 2, state.player.y - 2, state.player.width + 4, state.player.height + 4);
   }
 
-  drawRect(context, { x: 0, y: canvas.height - 30, width: canvas.width, height: 30 }, "rgba(8, 15, 30, 0.82)");
-  context.fillStyle = colors.mutedText;
-  context.font = "700 11px system-ui, sans-serif";
-  context.fillText("ZOMBIE PATROL + CYCLOPS DRONE ACTIVE", 24, canvas.height - 11);
 }

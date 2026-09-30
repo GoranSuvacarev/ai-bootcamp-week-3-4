@@ -157,9 +157,9 @@ describe("hazard and enemy collisions", () => {
   it("takes damage from the patrol enemy", () => {
     const state = createInitialGameState(DEFAULT_GAME_CONFIG);
     state.phase = "playing";
-    state.enemy.x = state.player.x;
-    state.enemy.y = state.player.y;
-    state.enemy.velocityX = 0;
+    state.enemies[0].x = state.player.x;
+    state.enemies[0].y = state.player.y;
+    state.enemies[0].velocityX = 0;
 
     const next = updateGame(state, noInput, 0);
 
@@ -187,37 +187,37 @@ describe("hazard and enemy collisions", () => {
     const state = createInitialGameState(DEFAULT_GAME_CONFIG);
     state.hazards[0].x = 32;
     state.hazards[0].velocityX = -100;
-    state.enemy.x = state.enemy.patrolMaxX;
-    state.enemy.velocityX = 80;
+    state.enemies[0].x = state.enemies[0].patrolMaxX;
+    state.enemies[0].velocityX = 80;
 
     const next = updateGame(state, noInput, 1);
 
     expect(next.hazards[0].x).toBe(32);
     expect(next.hazards[0].velocityX).toBe(100);
-    expect(next.enemy.x).toBe(state.enemy.patrolMaxX);
-    expect(next.enemy.velocityX).toBe(-80);
+    expect(next.enemies[0].x).toBe(state.enemies[0].patrolMaxX);
+    expect(next.enemies[0].velocityX).toBe(-80);
   });
 
   it("moves hazards and enemies more slowly on easy difficulty", () => {
     const normal = createInitialGameState({ ...DEFAULT_GAME_CONFIG, difficulty: "normal" });
     normal.hazards[0].x = 100;
     normal.hazards[0].velocityX = 100;
-    normal.enemy.x = 200;
-    normal.enemy.velocityX = 100;
+    normal.enemies[0].x = 200;
+    normal.enemies[0].velocityX = 100;
 
     const easy = createInitialGameState({ ...DEFAULT_GAME_CONFIG, difficulty: "easy" });
     easy.hazards[0].x = 100;
     easy.hazards[0].velocityX = 100;
-    easy.enemy.x = 200;
-    easy.enemy.velocityX = 100;
+    easy.enemies[0].x = 200;
+    easy.enemies[0].velocityX = 100;
 
     const normalNext = updateGame(normal, noInput, 1);
     const easyNext = updateGame(easy, noInput, 1);
 
     expect(normalNext.hazards[0].x).toBe(200);
     expect(easyNext.hazards[0].x).toBe(165);
-    expect(normalNext.enemy.x).toBe(300);
-    expect(easyNext.enemy.x).toBe(265);
+    expect(normalNext.enemies[0].x).toBe(300);
+    expect(easyNext.enemies[0].x).toBe(265);
   });
 
   it("grants a longer damage invulnerability window on easy difficulty", () => {

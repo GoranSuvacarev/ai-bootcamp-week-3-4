@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CORE_LADDERS, CORE_PLATFORMS } from "../src/game/level";
+import { CORE_ENEMIES, CORE_HAZARDS, CORE_LADDERS, CORE_PLATFORMS } from "../src/game/level";
 
 describe("core level layout", () => {
   it("uses full-width platforms for the vertical route", () => {
@@ -11,5 +11,17 @@ describe("core level layout", () => {
   it("alternates ladders between the right and left edges", () => {
     expect(CORE_LADDERS.map(({ x }) => x)).toEqual([544, 64, 544, 64]);
     expect(CORE_LADDERS.map(({ y }) => y)).toEqual([680, 520, 360, 200]);
+  });
+
+  it("stages fast and slow threats across the three levels below the beacon", () => {
+    expect(CORE_HAZARDS.map(({ y }) => y)).toEqual([
+      CORE_PLATFORMS[1].y - 24,
+      CORE_PLATFORMS[3].y - 24,
+    ]);
+    expect(CORE_ENEMIES.map(({ y }) => y)).toEqual([
+      CORE_PLATFORMS[2].y - 32,
+      CORE_PLATFORMS[3].y - 32,
+    ]);
+    expect(Math.abs(CORE_HAZARDS[0].velocityX)).toBeGreaterThan(Math.abs(CORE_ENEMIES[0].velocityX));
   });
 });

@@ -1,6 +1,6 @@
 import { DEFAULT_GAME_CONFIG } from "./config";
 import {
-  CORE_ENEMY,
+  CORE_ENEMIES,
   CORE_COLLECTIBLES,
   CORE_HAZARDS,
   CORE_LADDERS,
@@ -32,7 +32,7 @@ const EMPTY_INPUT: GameInput = {
 const copyPlatforms = () => CORE_PLATFORMS.map((platform) => ({ ...platform }));
 const copyLadders = () => CORE_LADDERS.map((ladder) => ({ ...ladder }));
 const copyHazards = () => CORE_HAZARDS.map((hazard) => ({ ...hazard }));
-const copyEnemy = () => ({ ...CORE_ENEMY });
+const copyEnemies = () => CORE_ENEMIES.map((enemy) => ({ ...enemy }));
 const copyCollectibles = () => CORE_COLLECTIBLES.map((collectible) => ({ ...collectible }));
 
 const overlapsHorizontally = (left: { x: number; width: number }, right: { x: number; width: number }) =>
@@ -74,7 +74,7 @@ export function createInitialGameState(config: GameConfig = DEFAULT_GAME_CONFIG)
     platforms: copyPlatforms(),
     ladders: copyLadders(),
     hazards: copyHazards(),
-    enemy: copyEnemy(),
+    enemies: copyEnemies(),
     collectibles: copyCollectibles(),
     goal: { x: 540, y: 152, width: 40, height: 48 },
   };
@@ -235,13 +235,17 @@ export function updateGame(state: GameState, input: GameInput = EMPTY_INPUT, dt:
     return { ...hazard, x: nextX };
   });
 
-  const enemyVelocityX = state.enemy.velocityX * difficultyRules.threatSpeedMultiplier;
-  const nextEnemyX = state.enemy.x + enemyVelocityX * safeDt;
-  const enemy = nextEnemyX < state.enemy.patrolMinX
-    ? { ...state.enemy, x: state.enemy.patrolMinX, velocityX: Math.abs(state.enemy.velocityX) }
-    : nextEnemyX > state.enemy.patrolMaxX
-      ? { ...state.enemy, x: state.enemy.patrolMaxX, velocityX: -Math.abs(state.enemy.velocityX) }
-      : { ...state.enemy, x: nextEnemyX };
+  const enemies = state.enemies.map((enemy) => {
+    const enemyVelocityX = enemy.velocityX * difficultyRules.threatSpeedMultiplier;
+    const nextEnemyX = enemy.x + enemyVelocityX * safeDt;
+    if (nextEnemyX < enemy.patrolMinX) {
+      return { ...enemy, x: enemy.patrolMinX, velocityX: Math.abs(enemy.velocityX) };
+    }
+    if (nextEnemyX > enemy.patrolMaxX) {
+      return { ...enemy, x: enemy.patrolMaxX, velocityX: -Math.abs(enemy.velocityX) };
+    }
+    return { ...enemy, x: nextEnemyX };
+  });
 
   const nextTime = state.time + safeDt;
   const nextState: GameState = {
@@ -250,11 +254,11 @@ export function updateGame(state: GameState, input: GameInput = EMPTY_INPUT, dt:
     time: nextTime,
     player,
     hazards,
-    enemy,
+    enemies,
   };
 
   const hazardHit = hazards.some((hazard) => hazard.active && overlaps(player, hazard));
-  const enemyHit = overlaps(player, enemy);
+  const enemyHit = enemies.some((enemy) => overlaps(player, enemy));
 
   if ((hazardHit || enemyHit) && nextTime >= player.invulnerableUntil) {
     const remainingLives = state.lives - 1;

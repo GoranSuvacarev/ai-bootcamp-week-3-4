@@ -81,7 +81,7 @@ export type GameState = {
   platforms: Platform[];
   ladders: Ladder[];
   hazards: RollingHazard[];
-  enemy: PatrolEnemy;
+  enemies: PatrolEnemy[];
   collectibles: Collectible[];
   goal: Goal;
 };

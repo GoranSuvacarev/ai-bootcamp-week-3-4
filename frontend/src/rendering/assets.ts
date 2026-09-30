@@ -65,10 +65,10 @@ export const drawSprite = (
 // heads and empty cells from being rendered as complete characters.
 export const CHARACTER_FRAMES = {
   scout: {
-    left: { x: 0, y: 16, width: 32, height: 48 },
-    down: { x: 32, y: 16, width: 32, height: 48 },
-    right: { x: 64, y: 16, width: 32, height: 48 },
-    up: { x: 96, y: 16, width: 32, height: 48 },
+    right: { x: 0, y: 16, width: 32, height: 48 },
+    up: { x: 32, y: 16, width: 32, height: 48 },
+    left: { x: 64, y: 16, width: 32, height: 48 },
+    down: { x: 96, y: 16, width: 32, height: 48 },
   },
   zombieIdle: { x: 0, y: 20, width: 32, height: 44 },
   cyclopsIdle: { x: 0, y: 32, width: 32, height: 32 },
