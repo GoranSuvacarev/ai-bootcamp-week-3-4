@@ -112,3 +112,18 @@ outside the deterministic game rules and validate each story before proceeding.
 ## Phase 8: Convergence
 
 - [x] T027 Record the before/after four-evaluation evidence and the combined-runner defect/fix in `specs/003-game-experience-redesign/quickstart.md` per Constitution IV (partial).
+
+## Phase 9: Visual asset correction checkpoints
+
+**Purpose**: Replace incorrect whole-sheet crops with a small, reviewable set of
+properly aligned sprites and single-image scenery assets.
+
+- [x] T028 Audit the screenshot defects, copy a named scenery subset from the pack's
+  `ME_Theme_Sorter_32x32` single-image folders, and record exact Scout, Zombie, and
+  Cyclops frame rectangles in `frontend/src/rendering/assets.ts`.
+- [ ] T029 Rebuild the Canvas background, platforms, ladders, characters, collectibles,
+  and Safehouse using the corrected asset map without visible collision rectangles.
+- [ ] T030 Rebuild the main-menu, pause, result, HUD, and action-button styling from one
+  coherent Modern UI slice while preserving semantic HTML and focus states.
+- [ ] T031 Run automated checks and record browser screenshots for menu, playing, pause,
+  and Safehouse/result states at desktop and narrow widths.

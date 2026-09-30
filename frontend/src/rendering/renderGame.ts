@@ -1,5 +1,5 @@
 import type { GameState, Rect } from "../game/types";
-import { CHARACTER_IDLE, drawSprite, isLoaded, type GameAssets } from "./assets";
+import { CHARACTER_FRAMES, drawSprite, isLoaded, type GameAssets } from "./assets";
 
 const colors = { platform: "#293653", edge: "#92afd1", ladder: "#f5bf58", text: "#f8f4e8", glow: "#f7c968" };
 
@@ -99,11 +99,22 @@ export function renderGame(context: CanvasRenderingContext2D, state: GameState, 
       context.fillStyle = "#ffe58a"; context.beginPath(); context.arc(collectible.x + 9, collectible.y + 9, 7, 0, Math.PI * 2); context.fill();
     }
   }
-  for (const hazard of state.hazards) if (hazard.active) { drawRect(context, hazard, "#82d6ce"); drawSprite(context, assets.cyclops, CHARACTER_IDLE, hazard); }
-  drawRect(context, state.enemy, "#8ecb69"); drawSprite(context, assets.zombie, CHARACTER_IDLE, state.enemy);
+  for (const hazard of state.hazards) {
+    if (hazard.active) drawSprite(context, assets.cyclops, CHARACTER_FRAMES.cyclopsIdle, hazard);
+  }
+  drawSprite(context, assets.zombie, CHARACTER_FRAMES.zombieIdle, {
+    x: state.enemy.x,
+    y: state.enemy.y + state.enemy.height - CHARACTER_FRAMES.zombieIdle.height,
+    width: CHARACTER_FRAMES.zombieIdle.width,
+    height: CHARACTER_FRAMES.zombieIdle.height,
+  });
   drawGoal(context, state.goal, assets);
-  drawRect(context, state.player, "#f4d66b");
-  drawSprite(context, assets.scout, CHARACTER_IDLE, { x: state.player.x, y: state.player.y + state.player.height - 32, width: 32, height: 32 });
+  drawSprite(context, assets.scout, CHARACTER_FRAMES.scoutIdle, {
+    x: state.player.x,
+    y: state.player.y + state.player.height - CHARACTER_FRAMES.scoutIdle.height,
+    width: CHARACTER_FRAMES.scoutIdle.width,
+    height: CHARACTER_FRAMES.scoutIdle.height,
+  });
   if (state.player.invulnerableUntil > state.time) {
     context.strokeStyle = "#ffe58a"; context.lineWidth = 2;
     context.strokeRect(state.player.x - 2, state.player.y - 2, state.player.width + 4, state.player.height + 4);
