@@ -123,7 +123,7 @@ properly aligned sprites and single-image scenery assets.
   Cyclops frame rectangles in `frontend/src/rendering/assets.ts`.
 - [x] T029 Rebuild the Canvas background, platforms, ladders, characters, collectibles,
   and Safehouse using the corrected asset map without visible collision rectangles.
-- [ ] T030 Rebuild the main-menu, pause, result, HUD, and action-button styling from one
+- [x] T030 Rebuild the main-menu, pause, result, HUD, and action-button styling from one
   coherent Modern UI slice while preserving semantic HTML and focus states.
 - [ ] T031 Run automated checks and record browser screenshots for menu, playing, pause,
   and Safehouse/result states at desktop and narrow widths.
