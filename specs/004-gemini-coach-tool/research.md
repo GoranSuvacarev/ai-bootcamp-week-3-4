@@ -63,10 +63,11 @@ changing model behavior and honors the single-provider/no-fallback boundary.
 ## Decision: Fake first; retry only classified transient provider failures
 
 **Rationale**: Local fakes produce repeatable success, rejection, malformed-output,
-timeout, and cancellation evidence without a key. At most two total attempts and one
-overall 30-second deadline prevent unbounded provider use. The error classifier treats
-network failures, HTTP 429, and HTTP 5xx as transient; invalid/auth/policy/malformed
-outcomes are final.
+timeout, and cancellation evidence without a key. Each provider stage has at most two
+attempts under one overall 30-second deadline; a final-answer retry reuses the
+validated tool result, so the tool still executes exactly once. The error classifier
+treats network failures, HTTP 429, and HTTP 5xx as transient; invalid/auth/policy/
+malformed outcomes are final.
 
 **Alternatives considered**:
 - Live provider tests for every case: rejected because they are non-deterministic,

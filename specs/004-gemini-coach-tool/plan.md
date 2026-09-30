@@ -29,7 +29,7 @@ telemetry paths without a provider key.
 
 **Project Type**: Separated web application with frontend, backend, and shared contract workspace
 
-**Performance Goals**: A completed local fake flow returns promptly; a real request has one finite 30-second overall deadline and at most two total provider attempts
+**Performance Goals**: A completed local fake flow returns promptly; a real request has one finite 30-second overall deadline and at most two provider attempts for each of its proposal and final-answer stages
 
 **Constraints**: Exactly one read-only tool; no provider key in browser; no raw provider output; validation at browser request, tool proposal, tool result, and final result; retries only for transient provider conditions; no fallback model/provider
 
@@ -112,9 +112,10 @@ request and public response shapes.
 4. Implement the Gemini SDK adapter with one function declaration and a two-turn
    manual function-calling exchange. Configure the second turn for JSON output,
    parse it, and leave the final validator as the security boundary.
-5. Add timeout, AbortSignal propagation, classified transient retry with two total
-   attempts, request IDs, and redacted event recording. Retry only provider network,
-   rate-limit, and server failures; do not retry invalid data, authorization,
+5. Add timeout, AbortSignal propagation, classified transient retry with two attempts
+   per provider stage, request IDs, and redacted event recording. A final-answer retry
+   reuses the validated snapshot and never executes the tool twice. Retry only provider
+   network, rate-limit, and server failures; do not retry invalid data, authorization,
    cancellation, malformed responses, or configuration failure.
 6. Rewire the HTTP server through the flow and update the frontend to show a stable
    generic unavailable message instead of server/provider text.

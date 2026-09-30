@@ -91,17 +91,17 @@ description: "Task list for Gemini Coach and Read-Only Game State Tool"
 
 **Goal**: Provider and malformed-output failures produce safe messages, bounded retries, cancellation, and no stale hint while gameplay continues.
 
-**Independent Test**: Fake timeout/transient failure retries at most twice; non-transient/malformed/cancelled paths never retry; stale browser requests do not update the new game session.
+**Independent Test**: A fake transient failure retries each provider stage at most once; a final-answer retry reuses the snapshot without another tool call; non-transient/malformed/cancelled paths never retry; stale browser requests do not update the new game session.
 
 ### Tests for User Story 3
 
-- [ ] T020 [P] [US3] Add fake-provider tests for transient retry with exactly two total attempts, timeout, missing key, non-transient failure, cancellation, malformed snapshot, and malformed final HintResponse in backend/tests/hint-flow.test.mjs.
+- [ ] T020 [P] [US3] Add fake-provider tests for at most two attempts per proposal/final stage, final-answer retry with one tool execution, timeout, missing key, non-transient failure, cancellation, malformed snapshot, and malformed final HintResponse in backend/tests/hint-flow.test.mjs.
 - [ ] T021 [P] [US3] Add HTTP tests for safe unavailable/malformed/cancelled public envelopes and redacted event fields in backend/tests/hint-server.test.mjs.
 - [ ] T022 [P] [US3] Add a frontend regression test for generic safe error display and stale-request suppression after restart/menu/new damage in frontend/tests/session.test.ts.
 
 ### Implementation for User Story 3
 
-- [ ] T023 [US3] Implement the 30-second overall deadline, propagated cancellation, classified retry for network/429/5xx failures only, and two-total-attempt cap in backend/src/coach/hint-flow.mjs and backend/src/coach/gemini-adapter.mjs.
+- [ ] T023 [US3] Implement the 30-second overall deadline, propagated cancellation, classified retry for network/429/5xx failures only, and two-attempt-per-stage cap in backend/src/coach/hint-flow.mjs and backend/src/coach/gemini-adapter.mjs; reuse the validated snapshot on final-stage retry.
 - [ ] T024 [US3] Complete safe event recording in backend/src/coach/telemetry.mjs and wire it through backend/src/hint.mjs without recording request, snapshot, provider text, API key, or stack trace.
 - [ ] T025 [US3] Update frontend/src/main.ts to replace all failed non-aborted hint responses with the defined generic unavailable message and to suppress stale completions.
 - [ ] T026 [US3] Add backend/.env.example guidance and backend/src/index.mjs startup behavior for an absent Gemini key, keeping local fake tests and normal gameplay usable.

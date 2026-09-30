@@ -59,7 +59,7 @@ envelope. Each request emits a redacted event:
 | operation | ai_hint. |
 | status | success, invalid_input, invalid_tool, unavailable, malformed_output, or cancelled. |
 | latencyMs | Non-negative elapsed milliseconds. |
-| attempts | Total provider attempts, starting at one only after provider work starts. |
+| attempts | Total provider calls across proposal/final stages, including retries; a normal success is two calls and each stage has at most two attempts. |
 
 Events contain no request, snapshot, tool response, provider text, API key, or stack
 trace.
