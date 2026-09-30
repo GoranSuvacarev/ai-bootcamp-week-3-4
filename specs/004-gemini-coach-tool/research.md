@@ -50,8 +50,9 @@ no-extra-fields policy before the UI can use it.
 ## Decision: Configure one explicit Gemini model with no fallback
 
 **Rationale**: GEMINI_MODEL selects one supported Gemini model for the environment;
-the documented example is gemini-2.5-flash. Keeping it explicit avoids silently
-changing model behavior and honors the single-provider/no-fallback boundary.
+this project pins its verified example to gemini-3.5-flash-lite. Keeping it explicit
+avoids silently changing model behavior and honors the single-provider/no-fallback
+boundary.
 
 **Alternatives considered**:
 - Provider or model fallback chain: rejected by the feature specification.

@@ -2,7 +2,7 @@
 
 **Feature Branch**: 004-gemini-coach-tool
 **Created**: 2026-09-30
-**Status**: Ready for planning
+**Status**: Complete
 **Input**: Add one controlled AI Hint. Gemini may propose one defined read-only game-state tool. The application validates and executes it, then validates a structured hint before it reaches the player.
 
 ## User Scenarios & Testing *(mandatory)*

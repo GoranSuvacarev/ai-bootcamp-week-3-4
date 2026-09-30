@@ -51,7 +51,7 @@ npm.cmd audit --omit=dev --workspace @quattro-kong/backend
 
 Actual results:
 
-- Full test suite: 76 passed: 55 frontend, 17 backend, and 4 shared-contract tests.
+- Full test suite: 78 passed: 57 frontend, 17 backend, and 4 shared-contract tests.
 - Typecheck: passed across frontend, backend, and shared contracts.
 - Production build: passed.
 - Production dependency audit: 0 vulnerabilities.
@@ -83,4 +83,6 @@ the server key from request payloads.
 
 **Driver contribution**: Feature contract implementation, local tests, workspace
 validation, and smoke test recorded above.
-**Observer contribution**: Pending pair review before final course demonstration.
+**Observer contribution**: A human pair review of the contract, zero-call rejection
+proof, and failure evidence remains the final demonstration preparation item; no
+observer result is claimed until that review occurs.
