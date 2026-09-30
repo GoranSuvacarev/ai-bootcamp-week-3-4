@@ -169,4 +169,3 @@ Task: T016 [US2] invalid-browser-request tests in backend/tests/hint-server.test
 2. Zero-call rejection proof for unsafe proposals.
 3. Safe errors, retry, cancellation, and stale UI suppression.
 4. Full evidence and review.
-
