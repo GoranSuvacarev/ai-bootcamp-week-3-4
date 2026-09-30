@@ -66,12 +66,21 @@ then rerun successfully.
   movement speed, jump velocity, gravity, and player boundaries.
 - Post-change command: `npm.cmd test -- tests/evals.test.ts`.
 - Post-change result: all four evaluation cases passed.
-- Full validation: `npm.cmd test` passed with 4 files and 42 tests;
+- Full validation: `npm.cmd test` passed with 5 files and 46 tests;
   `npm.cmd run typecheck` passed; `npm.cmd run build` passed with Vite 7.3.6.
-- Pair contribution record: the Driver implemented and validated the code and
-  evidence; the Observer reviewed the requirements checklist, Core boundary,
-  and reproducibility record. No private chain-of-thought, credentials, or
-  external provider context was used.
+- Confirmed pair contribution record: Goran Suvačarev was the Driver and
+  focused on writing and analysing prompts and preparing and writing the
+  specification. SaraTrnjakov was the Observer and reviewed the project,
+  confirmed that it followed the agreed specifications, and checked the
+  commands and results. No private chain-of-thought, credentials, or external
+  provider context was used.
+
+## Confirmed AI decisions and personal learning
+
+- Accepted AI suggestion: preparation of the Spec Kit structure.
+- Changed AI suggestions: the proposed specification, plan, and data model
+  were changed before being used.
+- Confirmed personal learning: using Spec Kit.
 
 ## Session 003 handoff review
 
@@ -95,3 +104,68 @@ then rerun successfully.
 - Verified the focused 19-test ladder/layout set, the full 46-test suite,
   typecheck, build, and browser layout/first-ladder smoke test. The full
   right-left-right-left route is covered by the deterministic route test.
+
+## Repository and handoff
+
+- The project was uploaded to the private GitHub repository:
+  https://github.com/GoranSuvacarev/ai-bootcamp-week-3
+- At the time of the Session 003 handoff, no Session 004 AI Hint, tool calling,
+  provider, backend, multiplayer, or stretch mechanics had been added.
+
+## Session 004 — project separation and game redesign
+
+- Used the Spec Kit workflow to define separate features for client/server
+  separation, the visual game redesign, and the controlled Gemini coach.
+- Reorganized the project into `frontend`, `backend`, and shared-contract
+  workspaces while keeping one root command for development and validation.
+- Reworked the game presentation with the supplied licensed tilesets and UI
+  pack. Human review selected the visual direction and requested corrections to
+  the route, platforms, goal beacon, enemy placement, player direction, menu,
+  pause, restart, and quit flows.
+- Preserved attribution details with the copied game assets.
+
+## Session 004 — controlled Gemini hint
+
+- Replaced the earlier direct provider approach with one server-only Google
+  Gemini adapter and one allowed read-only tool, `get_game_state`.
+- Used a two-turn flow: Gemini proposes the tool call, the backend validates the
+  exact name and arguments, the deterministic tool returns a minimized validated
+  snapshot, and Gemini returns a structured `HintResponse` that is validated
+  again before display.
+- Added explicit negative and failure handling for unsupported tools, invalid or
+  additional arguments, direct answers, zero or multiple proposals, malformed
+  snapshots, malformed final output, missing configuration, transient provider
+  failures, timeout, and cancellation.
+- Kept `GEMINI_API_KEY` in the ignored backend `.env` file. No key, raw provider
+  payload, stack trace, or private game context is recorded in this log.
+
+### AI calls, decisions, and verification
+
+- Codex was used to prepare the Spec Kit documents, implement the scoped
+  changes, run local checks, and organize evidence. Goran defined the task
+  boundaries, selected assets, reviewed rendered results, and requested concrete
+  corrections before accepting the implementation.
+- Sara completed her Observer contribution before Goran began his portion of
+  the work. She reviewed the project against the agreed specifications and
+  checked commands and results.
+- Local fake clients were used for repeatable automated coverage; these tests do
+  not contact Gemini or consume provider credit.
+- One limited live-provider verification was performed with the locally
+  configured `gemini-3.5-flash-lite` model. The backend and browser proxy each
+  returned HTTP 200 with a validated structured hint. Exact provider token and
+  cost data were not captured by the local application, so no numeric usage is
+  claimed.
+- The live check exposed Gemini thought-signature handling in the tool turn. The
+  adapter was corrected to preserve the signed model turn internally while
+  keeping it out of public contracts and browser responses.
+
+### Final Session 004 validation
+
+- `npm.cmd run test` — passed with 78 tests: 57 frontend, 17 backend, and 4
+  shared-contract tests.
+- `npm.cmd run typecheck` — passed across all workspaces.
+- `npm.cmd run build` — passed across the frontend and backend workspaces.
+- `npm.cmd audit --omit=dev --workspace @quattro-kong/backend` — passed with zero
+  production dependency vulnerabilities.
+- Browser smoke checks covered menu, gameplay, pause, resume, restart, return to
+  menu, unavailable-provider behavior, and a successful live Gemini hint.

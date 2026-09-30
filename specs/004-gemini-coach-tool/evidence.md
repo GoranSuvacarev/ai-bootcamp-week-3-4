@@ -83,6 +83,6 @@ the server key from request payloads.
 
 **Driver contribution**: Feature contract implementation, local tests, workspace
 validation, and smoke test recorded above.
-**Observer contribution**: A human pair review of the contract, zero-call rejection
-proof, and failure evidence remains the final demonstration preparation item; no
-observer result is claimed until that review occurs.
+**Observer contribution**: Sara completed her Observer contribution before Goran
+began his portion of the work. She reviewed the project against the agreed
+specifications and checked the commands and results.

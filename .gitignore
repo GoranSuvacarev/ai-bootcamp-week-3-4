@@ -12,3 +12,5 @@ coverage/
 Thumbs.db
 .DS_Store
 .agents/
+/docs/STUDENT_WEEKLY_REPORT*.md
+/docs/STUDENT_WEEKLY_REPORT*.pdf

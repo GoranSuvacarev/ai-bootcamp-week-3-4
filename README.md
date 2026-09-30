@@ -1,67 +1,95 @@
-# AI Bootcamp Week 3
+# Quattro Kong — AI Bootcamp Weeks 3–4
 
-Retro AI Engineering Challenge — Session 003.
+Quattro Kong is a small retro-inspired browser platformer built for the AI
+Bootcamp Session 003 and Session 004 challenge. The project demonstrates a
+bounded game specification, repeatable evaluations, a client/server split, a
+redesigned game experience, and one controlled Google Gemini hint feature.
 
-This project was developed with GitHub Spec Kit and the Codex integration. Session
-003 implementation and evidence are complete. The current next step is human
-review and instructor approval of the documented title/originality risk before
-submission.
+## What is included
 
-## Current scope
+- A TypeScript/Vite frontend with a main menu, pause, resume, restart, and quit
+  flow.
+- A rooftop level using licensed pixel-art assets, directional player sprites,
+  two enemy types, and a collectible beacon goal.
+- A separate Node backend that keeps Gemini credentials outside the browser.
+- One model-callable read-only tool, `get_game_state`, with an exact allowlist,
+  runtime validation, bounded retries, cancellation, and safe public errors.
+- Shared runtime contracts for the hint request, tool proposal, game-state
+  snapshot, and structured `HintResponse`.
+- Local fake-based success, negative, and failure tests. Automated tests do not
+  require a Gemini API key.
 
-- one small retro-inspired browser game;
-- structured game configuration or state with runtime validation;
-- baseline and four repeatable eval cases;
-- one hypothesis-driven controlled change;
-- evidence and AI usage documentation.
-- an optional AI coach that gives a hint after a lost life.
+## Project structure
 
-## Session 003 validation
+| Path | Purpose |
+| --- | --- |
+| `frontend/` | Browser game, UI, rendering, assets, and frontend tests |
+| `backend/` | Local hint API, Gemini adapter, tool policy, and backend tests |
+| `packages/game-contracts/` | Shared validated request and response contracts |
+| `specs/002-client-server-separation/` | Client/server separation specification |
+| `specs/003-game-experience-redesign/` | Game redesign specification and evidence |
+| `specs/004-gemini-coach-tool/` | Gemini tool contract, implementation plan, tests, and evidence |
+| `docs/` | Session 003 baseline, evaluations, handoff, and AI usage log |
 
-- `npm.cmd test` — 42 tests passing;
-- `npm.cmd run typecheck` — passing;
-- `npm.cmd run build` — passing;
-- browser smoke evidence — recorded in `docs/EVALS.md` and `docs/EVIDENCE_003.md`;
-- requirements quality checklist — 20/20 items checked.
-- handoff package — `docs/SESSION_003_HANDOFF.md`.
+Asset licensing and source-pack information are recorded in
+`frontend/public/assets/ATTRIBUTION.md`.
 
-## AI coach (local development)
+## Run locally
 
-Set `OPENAI_API_KEY` in the server's environment, then run `npm.cmd run dev`.
-On PowerShell, for example:
+Install dependencies from the repository root:
 
 ```powershell
-$env:OPENAI_API_KEY = "<your API key>"
-npm.cmd run dev
+npm.cmd install
 ```
 
-The command starts both Vite and the local hint API. The **Get hint** button
-becomes available after losing a life. Each click sends the last hit and the
-selected difficulty to the API; the server asks the model for one short hint.
-The default model is `gpt-5-mini`; set `OPENAI_MODEL` on the server to override it.
-Without a key, the game still runs and the hint panel reports that the coach
-is not configured. The key must not be placed in a `VITE_` variable or browser
-code. For a deployed build, route `/api/hint` to the Node API (`npm.cmd run api`).
+Create the local backend configuration:
 
-## Spec Kit workflow
+```powershell
+Copy-Item backend/.env.example backend/.env
+```
 
-Run the project-specific Codex skills from this directory:
+Add your key only to `backend/.env`:
 
 ```text
-$speckit-constitution
-$speckit-specify
-$speckit-clarify
-$speckit-plan
-$speckit-checklist
-$speckit-tasks
-$speckit-analyze
-$speckit-implement
-$speckit-converge
+GEMINI_API_KEY=your_key_here
+GEMINI_MODEL=gemini-3.5-flash-lite
 ```
 
+The local `.env` file is ignored by Git. Do not place the key in a `VITE_`
+variable or frontend source.
+
+Start the frontend and backend together:
+
+```powershell
+npm.cmd run dev -- --host 127.0.0.1
+```
+
+Open `http://127.0.0.1:5173/`. The game remains playable without a Gemini key;
+after a collision, the hint panel displays the defined unavailable message.
+
+## Validation
+
+Run the complete local checks from the repository root:
+
+```powershell
+npm.cmd run test
+npm.cmd run typecheck
+npm.cmd run build
+npm.cmd audit --omit=dev --workspace @quattro-kong/backend
+```
+
+The final recorded result is 78 passing tests: 57 frontend, 17 backend, and 4
+shared-contract tests. Typecheck and production build pass, and the backend
+production dependency audit reports zero vulnerabilities.
+
+## Evidence
+
+- Session 003 baseline and controlled change: `docs/EVIDENCE_003.md`
+- Session 003 evaluations: `docs/EVALS.md`
+- Session 004 tool contract:
+  `specs/004-gemini-coach-tool/contracts/tool-contract.md`
+- Session 004 success, negative, failure, browser, and live-provider evidence:
+  `specs/004-gemini-coach-tool/evidence.md`
+- AI usage record: `docs/AI_USAGE_LOG.md`
+
 The authoritative project rules are in `.specify/memory/constitution.md`.
-
-## Handoff status
-
-The Session 003 handoff remains a historical record. The AI coach is a later
-working-tree addition; it has not been added to the Session 003 evidence.

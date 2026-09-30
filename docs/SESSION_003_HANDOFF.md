@@ -52,14 +52,25 @@ now frozen again for review. Technical acceptance checks pass; instructor approv
   `evidence/screenshots/current/first-ladder.png`, and
   `evidence/screenshots/current/route.png`.
 
-## Scope decision
+## Scope decision at handoff
 
-The current project contains no AI Hint, tool calling, provider, backend,
-multiplayer, or other Session 004 feature. Week 4 work starts only after this
-handoff is accepted and the tutor-provided read-only tool contract and mock
-fixture are available.
+At the time of this Session 003 handoff, the project contained no AI Hint, tool
+calling, provider, backend, multiplayer, or other Session 004 feature. Week 4
+work began later and is documented separately under
+`specs/004-gemini-coach-tool/`.
+
+## Pair contribution
+
+- Goran Suvačarev was the Driver. His confirmed contribution was writing and
+  analysing prompts and preparing and writing the specification.
+- SaraTrnjakov was the Observer. Her confirmed contribution was reviewing the
+  project, confirming that it followed the agreed specifications, and checking
+  the commands and results.
 
 ## Git and approval status
 
-No commit, branch, reset, or automatic Git action has been performed. The title
-approval is not assumed and must be supplied by the instructor before submission.
+The project has been uploaded to the private GitHub repository:
+https://github.com/GoranSuvacarev/ai-bootcamp-week-3
+
+The title/originality approval is not assumed and must still be supplied by the
+instructor before submission.
