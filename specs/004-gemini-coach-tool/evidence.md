@@ -67,13 +67,19 @@ The combined development server was started without GEMINI_API_KEY.
 5. No JavaScript exception was observed. DevTools recorded the expected HTTP 503 resource
    response for the intentionally unconfigured server.
 
-## Provider and review limitation
+## Live provider verification
 
-No live Gemini request was run because no GEMINI_API_KEY was supplied. This is an
-intentional Core limitation: local fakes are the repeatable evidence path. The
-Gemini adapter has a fake-client test that verifies its one function declaration,
-two-turn exchange, structured-output request, and that the server key is not sent in
-the request payload.
+With a locally configured GEMINI_API_KEY and gemini-3.5-flash-lite, a real backend
+POST returned HTTP 200 with a valid structured HintResponse. The running browser
+then made the same request through the Vite /api/hint proxy and received HTTP 200,
+a non-empty hint, a valid suggested action, and a valid urgency.
+
+This check found and fixed Gemini 3 thought-signature handling: the adapter now
+returns the full signed model tool turn with the function response. The signature
+remains provider-only; the validated public tool proposal and response contracts do
+not expose it. The fake-client test verifies that preserved turn alongside the one
+function declaration, two-turn exchange, structured-output request, and absence of
+the server key from request payloads.
 
 **Driver contribution**: Feature contract implementation, local tests, workspace
 validation, and smoke test recorded above.

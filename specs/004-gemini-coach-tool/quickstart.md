@@ -4,8 +4,8 @@
 
 - Node.js and project dependencies installed with npm.cmd install.
 - No Gemini credential is required for automated tests.
-- Optional live smoke setup: set GEMINI_API_KEY and GEMINI_MODEL in the backend
-  process environment. Do not commit either value.
+- Optional live smoke setup: add GEMINI_API_KEY and GEMINI_MODEL to backend/.env.
+  Do not commit either value.
 
 ## Local verification
 
@@ -43,8 +43,8 @@ playable. Restart/menu/new damage must cancel and suppress an older pending hint
 4. Optional limited Gemini smoke:
 
 ~~~powershell
-$env:GEMINI_API_KEY = "your key"
-$env:GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_API_KEY=your key
+GEMINI_MODEL=gemini-3.5-flash-lite
 npm.cmd run dev
 ~~~
 

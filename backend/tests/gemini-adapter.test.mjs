@@ -13,8 +13,12 @@ const hint = { hint: "Wait, then climb.", suggestedAction: "wait", urgency: "med
 
 describe("Gemini adapter", () => {
   it("declares one read-only tool and completes the two-turn exchange without exposing its key", async () => {
+    const signedToolTurn = {
+      role: "model",
+      parts: [{ functionCall: proposal, thoughtSignature: "opaque-provider-signature" }],
+    };
     const generateContent = vi.fn()
-      .mockResolvedValueOnce({ functionCalls: [proposal] })
+      .mockResolvedValueOnce({ functionCalls: [proposal], candidates: [{ content: signedToolTurn }] })
       .mockResolvedValueOnce({ text: JSON.stringify(hint) });
     const client = { models: { generateContent } };
     const adapter = createGeminiAdapter({ apiKey: "server-key", model: "gemini-2.5-flash", client });
@@ -28,6 +32,7 @@ describe("Gemini adapter", () => {
     expect(first.config.tools).toEqual([{ functionDeclarations: [GET_GAME_STATE_DECLARATION] }]);
     expect(first.config.toolConfig.functionCallingConfig.allowedFunctionNames).toEqual(["get_game_state"]);
     expect(second.config.responseJsonSchema).toEqual(HINT_RESPONSE_SCHEMA);
+    expect(second.contents[1]).toEqual(signedToolTurn);
     expect(JSON.stringify(generateContent.mock.calls)).not.toContain("server-key");
   });
 });

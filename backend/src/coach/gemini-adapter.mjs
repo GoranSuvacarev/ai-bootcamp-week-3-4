@@ -39,7 +39,9 @@ function awaitAbortable(promise, signal) {
   });
 }
 
-export function createGeminiAdapter({ apiKey, model = "gemini-2.5-flash", client = new GoogleGenAI({ apiKey }) }) {
+export function createGeminiAdapter({ apiKey, model = "gemini-3.5-flash-lite", client = new GoogleGenAI({ apiKey }) }) {
+  const pendingToolTurns = new Map();
+
   return {
     async propose({ signal }) {
       const response = await awaitAbortable(client.models.generateContent({
@@ -55,27 +57,43 @@ export function createGeminiAdapter({ apiKey, model = "gemini-2.5-flash", client
           },
         },
       }), signal);
-      return (response.functionCalls ?? []).map((call) => ({
-        id: call.id ?? "",
-        name: call.name,
-        args: call.args ?? {},
-      }));
+      return (response.functionCalls ?? []).map((call) => {
+        const proposal = {
+          id: call.id ?? "",
+          name: call.name,
+          args: call.args ?? {},
+        };
+        const modelTurn = response.candidates?.[0]?.content;
+        pendingToolTurns.set(
+          proposal.id,
+          modelTurn ?? { role: "model", parts: [{ functionCall: call }] },
+        );
+        return proposal;
+      });
     },
 
     async finalize({ proposal, snapshot, signal }) {
-      const response = await awaitAbortable(client.models.generateContent({
-        model,
-        contents: [
-          { role: "user", parts: [{ text: COACH_PROMPT }] },
-          { role: "model", parts: [{ functionCall: proposal }] },
-          { role: "user", parts: [{ functionResponse: { id: proposal.id, name: proposal.name, response: { snapshot } } }] },
-        ],
-        config: {
-          responseMimeType: "application/json",
-          responseJsonSchema: HINT_RESPONSE_SCHEMA,
-        },
-      }), signal);
-      return JSON.parse(response.text ?? "");
+      const modelTurn = pendingToolTurns.get(proposal.id) ?? {
+        role: "model",
+        parts: [{ functionCall: proposal }],
+      };
+      try {
+        const response = await awaitAbortable(client.models.generateContent({
+          model,
+          contents: [
+            { role: "user", parts: [{ text: COACH_PROMPT }] },
+            modelTurn,
+            { role: "user", parts: [{ functionResponse: { id: proposal.id, name: proposal.name, response: { snapshot } } }] },
+          ],
+          config: {
+            responseMimeType: "application/json",
+            responseJsonSchema: HINT_RESPONSE_SCHEMA,
+          },
+        }), signal);
+        return JSON.parse(response.text ?? "");
+      } finally {
+        pendingToolTurns.delete(proposal.id);
+      }
     },
   };
 }
